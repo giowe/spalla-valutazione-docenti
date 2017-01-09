@@ -21,3 +21,5 @@ gulp.task('start', ()=>{
     port: 8000
   });
 });
+
+gulp.task('default', ['start']);
