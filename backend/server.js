@@ -15,16 +15,31 @@ const pool  = mysql.createPool({
 const app = new express();
 const port = 4000;
 
-app.get('/domande', (req, res) => {
-  pool.query('SELECT * FROM domande ORDER BY ordine ASC', (err, rows, fields) => {
-    if (err) return res.status(500).json(err); 
-    res.json(rows);
-  })
-});
+const exposeExplorer = (tableName, sorter) => {
+  app.get(`/${tableName}`, (req, res) => {
+    pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC`, (err, rows, fields) => {
+      if (err) return res.status(500).json(err);
+      res.json(rows);
+    })
+  });
+};
+
+exposeExplorer('classi', 'id');
+exposeExplorer('domande', 'ordine');
+exposeExplorer('docenti', 'cognome');
+
 
 app.get('/docenti/:classe', (req, res) => {
+  const classe = req.params.classe;
   
-  pool.query('SELECT * FROM domande ORDER BY ordine ASC', (err, rows, fields) => {
+  const query = [
+    'SELECT d.nome, d.cognome, d.materia FROM docenti d',
+    'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
+    'INNER JOIN classi c ON cd.idClasse = c.id',
+    'WHERE c.id = ?'
+  ].join(' ');
+  
+  pool.query(query, [classe], (err, rows, fields) => {
     if (err) return res.status(500).json(err);
     res.json(rows);
   })
