@@ -10,6 +10,7 @@
   "dependencies": {
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
-    "gulp-install": "^0.6.0"
+    "gulp-install": "^0.6.0",
+    "uuid": "^3.0.1"
   }
 }

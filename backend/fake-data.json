@@ -1,0 +1,30 @@
+{
+  "docenti": [{
+      "idDocente": 1,
+      "domande": [{
+          "idDomande": 1,
+          "valutazione": 5
+        }, {
+          "idDomande": 2,
+          "valutazione": 1
+        }, {
+          "idDomande": 3,
+          "valutazione": 2
+        }
+      ]
+    },{
+      "idDocente": 2,
+      "domande": [{
+        "idDomande": 1,
+        "valutazione": 4
+      }, {
+        "idDomande": 2,
+        "valutazione": 4
+      }, {
+        "idDomande": 3,
+        "valutazione": 4
+      }
+      ]
+    }
+  ]
+}

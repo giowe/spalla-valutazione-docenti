@@ -3,6 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const config = require('./config.json');
+const uuid = require('uuid/v4');
+
+const sezioneCorrente = process.argv[2];
+if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
+console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
+
 const pool  = mysql.createPool({
     connectionLimit  : 10,
     host             : "rds.soluzionifutura.it",
@@ -15,7 +21,9 @@ const pool  = mysql.createPool({
 const app = new express();
 const port = 4000;
 
-const exposeExplorer = (tableName, sorter) => {
+app.use(bodyParser.json());
+
+const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC`, (err, rows, fields) => {
       if (err) return res.status(500).json(err);
@@ -24,16 +32,17 @@ const exposeExplorer = (tableName, sorter) => {
   });
 };
 
-exposeExplorer('classi', 'id');
-exposeExplorer('domande', 'ordine');
-exposeExplorer('docenti', 'cognome');
-
+exposeList('classi', 'id');
+exposeList('domande', 'ordine');
+exposeList('docenti', 'cognome');
+exposeList('votazioni', 'idDocente');
+exposeList('studenti', 'idClasse');
 
 app.get('/docenti/:classe', (req, res) => {
   const classe = req.params.classe;
   
   const query = [
-    'SELECT d.nome, d.cognome, d.materia FROM docenti d',
+    'SELECT d.id, d.nome, d.cognome, d.materia FROM docenti d',
     'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
     'INNER JOIN classi c ON cd.idClasse = c.id',
     'WHERE c.id = ?'
@@ -45,7 +54,22 @@ app.get('/docenti/:classe', (req, res) => {
   })
 });
 
-app.use(bodyParser.json());
+app.post('/votazioni', (req, res) => {
+  //todo scommentare quando avremo il frontend.
+  const body = require('./fake-data.json');//req.body;
+
+  const studente = {
+    id: uuid(),
+    idClasse: sezioneCorrente
+  };
+
+  console.log(studente);
+
+  pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    res.json(rows);
+  });
+});
 
 app.all('*', (req, res) => {
   res.status(404).json({
