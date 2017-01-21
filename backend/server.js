@@ -64,11 +64,21 @@ app.post('/votazioni', (req, res) => {
   };
 
   console.log(studente);
-
-  pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
-    if (err) return res.status(500).json(err);
-    res.json(rows);
+  const votazioni = [];  
+  body.docenti.forEach(docente => {
+    docente.domande.forEach(domanda => {
+      votazioni.push([studente.id, docente.id, domanda.id, domanda.voto]);
+    });
   });
+  
+  res.json(votazioni);
+  /*pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    pool.query('', (err, rows, fields) => {
+      if (err) return res.status(500).json(err);
+      
+    });
+  });*/
 });
 
 app.all('*', (req, res) => {
