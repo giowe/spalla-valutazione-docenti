@@ -1,0 +1,8 @@
+extends ../layout
+
+block content
+  h1 HOME
+  h2 domande
+  ul
+    each domanda in domande
+      li #{domanda.testo}
