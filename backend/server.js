@@ -38,6 +38,18 @@ exposeList('docenti', 'cognome');
 exposeList('votazioni', 'idDocente');
 exposeList('studenti', 'idClasse');
 
+
+app.get(`/domande/:type`, (req, res) => {
+  const params = {
+    type: req.params.type
+  };
+
+  pool.query(`SELECT * FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    res.json(rows);
+  })
+});
+
 app.get('/docenti/:classe', (req, res) => {
   const classe = req.params.classe;
   
@@ -56,29 +68,27 @@ app.get('/docenti/:classe', (req, res) => {
 
 app.post('/votazioni', (req, res) => {
   //todo scommentare quando avremo il frontend.
-  const body = require('./fake-data.json');//req.body;
+  const body = req.body;/*require('./fake-data.json');*/
 
   const studente = {
     id: uuid(),
     idClasse: sezioneCorrente
   };
 
-  console.log(studente);
-  const votazioni = [];  
+  const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
       votazioni.push([studente.id, docente.id, domanda.id, domanda.voto]);
     });
   });
   
-  res.json(votazioni);
-  /*pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
+  pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
     if (err) return res.status(500).json(err);
-    pool.query('', (err, rows, fields) => {
+    pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
-      
+      res.json(rows);
     });
-  });*/
+  });
 });
 
 app.all('*', (req, res) => {
