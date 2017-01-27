@@ -1,8 +1,26 @@
 extends ../layout
 
 block content
-  h1 HOME
-  h2 domande
+  h1 Domande docenti:
   ul
-    each domanda in domande
+    each docente in docenti
+      li
+        h2 #{docente.nome} #{docente.cognome} #{docente.materia}
+        h3 DOMANDE:
+        ol
+          each domanda in domandeDocenti
+            li
+              p #{domanda.testo}
+              form(action="")
+                if (!domanda.required)
+                  input(type="radio" name="test" value=-1 checked="checked")
+                  | NA
+
+                - for (var i = 1; i <= 5; i++)
+                  input(type="radio" name="test" value=i)
+                  | #{i}
+
+  h1 Domande generali
+  ol
+    each domanda in domandeGenerali
       li #{domanda.testo}

@@ -51,7 +51,8 @@ app.get(`/domande/:type`, (req, res) => {
 });
 
 app.get('/docenti/:classe', (req, res) => {
-  const classe = req.params.classe;
+  let classe = req.params.classe;
+  if (classe === 'current') classe = sezioneCorrente;
   
   const query = [
     'SELECT d.id, d.nome, d.cognome, d.materia FROM docenti d',
