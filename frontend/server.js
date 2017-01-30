@@ -8,6 +8,7 @@ const port = 8000;
 
 app.set('view engine', 'pug');
 app.set('views', './views/pages');
+app.use('/static', express.static('./static'));
 
 app.get('/', (req, res) => {
   const asyncFunctions = [

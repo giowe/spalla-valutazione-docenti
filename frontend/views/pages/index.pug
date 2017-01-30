@@ -4,14 +4,14 @@ block content
   h1 Domande docenti:
   ul
     each docente in docenti
-      li
-        h2 #{docente.nome} #{docente.cognome} #{docente.materia}
+      li.docente
+        h2.nome-docente #{docente.nome} #{docente.cognome} #{docente.materia}
         h3 DOMANDE:
         ol
           each domanda in domandeDocenti
-            li
-              p #{domanda.testo}
-              form(action="")
+            li.domanda
+              p.testo-domanda #{domanda.testo}
+              form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id action="")
                 if (!domanda.required)
                   input(type="radio" name="test" value=-1 checked="checked")
                   | NA
@@ -21,6 +21,8 @@ block content
                   | #{i}
 
   h1 Domande generali
-  ol
+  ol.docente
     each domanda in domandeGenerali
-      li #{domanda.testo}
+      li.domanda #{domanda.testo}
+      
+  button(type="button" onclick="sendTest()") Invia il test
