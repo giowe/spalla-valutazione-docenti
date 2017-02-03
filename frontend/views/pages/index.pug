@@ -3,22 +3,23 @@ extends ../layout
 block content
   h1 Domande docenti:
   ul
-    each docente in docenti
-      li.docente
-        h2.nome-docente #{docente.nome} #{docente.cognome} #{docente.materia}
-        h3 DOMANDE:
-        ol
-          each domanda in domandeDocenti
-            li.domanda
-              p.testo-domanda #{domanda.testo}
-              form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id action="")
-                if (!domanda.required)
-                  input(type="radio" name="test" value=-1 checked="checked")
-                  | NA
+    each docente, indexDocente in docenti
+      if indexDocente < 100
+        li.docente
+          h2.nome-docente #{docente.nome} #{docente.cognome} #{docente.materia}
+          h3 DOMANDE:
+          ol
+            each domanda in domandeDocenti
+              li.domanda
+                p.testo-domanda #{domanda.testo}
+                form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id isRequired=domanda.required action="")
+                  if (!domanda.required)
+                    input(type="radio" name="test" value=-1 checked="checked")
+                    | NA
 
-                - for (var i = 1; i <= 5; i++)
-                  input(type="radio" name="test" value=i)
-                  | #{i}
+                  - for (var i = 1; i <= 5; i++)
+                    input(type="radio" name="test" value=i)
+                    | #{i}
 
   h1 Domande generali
   ol.docente
