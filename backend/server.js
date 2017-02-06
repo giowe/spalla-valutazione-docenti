@@ -23,6 +23,17 @@ const port = 4000;
 
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin','*');
+  res.header('Access-Control-Allow-Methods','GET, OPTIONS, POST');
+  res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
+
 const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC`, (err, rows, fields) => {
@@ -68,8 +79,8 @@ app.get('/docenti/:classe', (req, res) => {
 });
 
 app.post('/votazioni', (req, res) => {
-  //todo scommentare quando avremo il frontend.
   const body = req.body;/*require('./fake-data.json');*/
+  console.log(body);
 
   const studente = {
     id: uuid(),

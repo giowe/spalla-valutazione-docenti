@@ -63,5 +63,19 @@ function sendTest() {
   }
 
   //todo mando il voto
-  console.log(dataToSend);
+
+  nanoajax.ajax({
+      method: 'POST',
+      body: JSON.stringify(dataToSend),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      url:'http://192.168.1.231:4000/votazioni'
+    },
+
+    function (code, responseText) {
+      console.log(responseText);
+    }
+
+  );
 }
