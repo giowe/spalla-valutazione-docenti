@@ -1,29 +1,51 @@
 extends ../layout
 
 block content
-  h1 Domande docenti:
-  ul
-    each docente, indexDocente in docenti
-      if indexDocente < 100
-        li.docente
-          h2.nome-docente #{docente.nome} #{docente.cognome} #{docente.materia}
-          h3 DOMANDE:
+  div.body-page(style="background-image: url(./static/images/pi_greco.jpg);")
+      div.header-container
+        div.header-container-text
+          div.header-text
+            h1 IL TANTO ATTESO QUESTIONARIO
+            h3 #[strong Prima di procedere leggere attentamente il foglio illustrativo:]
+            p Questa possibilità di esprimere il giudizio di ognuno di voi in modo anonimo verso i professori è stato possibile solo con la realizzazione di questo sito, vi preghiamo quindi di rispondere con massima sincerità alle domande generali che trovate a fine pagina; 
+            p Ah ultima cosa, ma non meno importante, se volete che la vostra votazione venga registrata in modo corretto compilate ogni quesito, Grazie e buono sfogo!
+            div.header-bottone
+              button(type="button" onClick="scrollToItem(docentiBodyDomande)") #[h3 Clicca per iniziare]
+      div.bodyDomandeDocenti
+          ul#docentiBodyDomande
+              each docente in docenti
+                li.docente
+                  h2.nome-docente Docente #{docente.nome} #{docente.cognome} #{docente.materia}
+                  h3 DOMANDE:
+                  ol
+                    each domanda in domandeDocenti
+                      div.container-domanda
+                        li.domanda
+                          p.testo-domanda #{domanda.testo}
+                          form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id action="")
+                            if (!domanda.required)
+                              input(onclick="removeMissing(this)" type="radio" name="test" value=-1 checked="checked")
+                              |   NA   
+                    
+                            - for (var i = 1; i <= 5; i++)
+                              input(onclick="removeMissing(this)" type="radio" name="test" value=i)
+                              |   #{i}   
+      div.bodyDomandeGenerali
           ol
-            each domanda in domandeDocenti
-              li.domanda
-                p.testo-domanda #{domanda.testo}
-                form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id isRequired=domanda.required action="")
-                  if (!domanda.required)
-                    input(type="radio" name="test" value=-1 checked="checked")
-                    | NA
-
-                  - for (var i = 1; i <= 5; i++)
-                    input(type="radio" name="test" value=i)
-                    | #{i}
-
-  h1 Domande generali
-  ol.docente
-    each domanda in domandeGenerali
-      li.domanda #{domanda.testo}
-      
-  button(type="button" onclick="sendTest()") Invia il test
+            div.domande-generali
+              h1 Domande generali
+              each domanda in domandeGenerali
+                div.container-domanda
+                  li.domanda 
+                    p.testo-domanda #{domanda.testo}
+                    form.risposte-domanda(idDocente=null idDomanda=domanda.id action="")
+                            if (!domanda.required)
+                              input(onclick="removeMissing(this)" type="radio" name="test" value=-1 checked="checked")
+                              |   NA   
+                    
+                            - for (var i = 1; i <= 5; i++)
+                              input(onclick="removeMissing(this)" type="radio" name="test" value=i)
+                              |   #{i}  
+      div.bodyBottone
+          div.bottone-send   
+            button(type="button"  onclick="sendTest()") #[h3 Invia il test]

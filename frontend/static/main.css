@@ -1,37 +1,199 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  
+  margin: 0;
+  padding: 0;
 }
 
-ul {
+.missing {
+  background: red;
+}
+
+.body-page {
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: white;
+}
+
+.header-container {
+  height: 100vh;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.header-container .header-text {
+  margin-left: 25%;
+  margin-right: 25%;
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+  border-radius: 30px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  color: white;
+  -webkit-transition-duration: 1s;
+  transition-duration: 1s;
+}
+
+.header-container .header-bottone {
+  margin-top: 5%;
+}
+
+.header-container .header-bottone button {
+  border-radius: 15px;
+  border: 3px solid white;
+  color: white;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0);
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+}
+
+.header-container .header-bottone button:hover {
+  border-color: limegreen;
+  color: lime;
+}
+
+.body-page .bodyDomandeDocenti {
+  background-color:rgba(155, 155, 155, 0.3);
+}
+
+.bodyDomandeDocenti ul {
   list-style-type: none;
+  padding: 10%;
+  margin-top: 0px;
+  padding-top: 30px;
+  padding-bottom: 15px;
+  margin-bottom: 0;
 }
 
-.docente {
-  border: solid 1px black;
-  margin-bottom: 10px;
-  padding: 10px;
+.bodyDomandeDocenti ul .docente {
+  font-family: "Source Sans Pro", Arial, sans-serif;
+  border-radius: 25px;
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 0.25px solid #4a4b4c;
+}
+
+.docente ol {
+  padding-left: 0;
 }
 
 .docente .nome-docente {
-  background: #bdd9ff;
+  text-align: center;
 }
 
-.domanda {
-
+.docente h3 {
+  padding-left: 1.5%;
 }
+
+.container-domanda {
+  padding-left: 5%;
+  padding-bottom: 15px;
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+}
+
+.body-page .bodyDomandeGenerali {
+  background-color: rgba(155, 155, 155, 0.3);
+}
+
+.bodyDomandeGenerali ol {
+  padding: 10%;
+  margin-top: 0;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  margin-bottom: 0;
+}
+
+.bodyDomandeGenerali ol .domande-generali {
+  font-family: "Source Sans Pro", Arial, sans-serif;
+  border-radius: 25px;
+  padding: 20px;
+  padding-right: 50px;
+  padding-left: 50px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 0.25px solid #4a4b4c;
+}
+
+ol h1 {
+  text-align: center;
+}
+
+.domanda {}
 
 .domanda .testo-domanda {
-
+  margin-top: 0;
 }
 
-.domande .risposte-domanda {
+.domanda .risposte-domanda {}
 
+.body-page .bodyBottone {
+  background-color:rgba(155, 155, 155, 0.3);
+}
+
+
+.bottone-send {
+  padding-top: 30px;
+  text-align: center;
+}
+
+.bottone-send button {
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 3px solid #555555;
+  margin-bottom: 40px;
+  width: 20%;
+  font-size: 16px;
+  color: #555555;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+
+.bottone-send button:hover {
+  background-color: rgba(11, 168, 30, 0.9);
+  border-color: #004c0c;
+  color: white;
 }
 
 footer {
   position: relative;
   bottom: 0;
-  width: 100%;
-  color: white;
-  background: black;
+  color: #4CAF50;
+  background: #5f5f5f;
+  height: 150px;
+}
+
+footer .footerText {
+  text-align: center;
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+  left: 0;
+  right: 0;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+}
+
+@media (max-width:614px) {
+  .header-container .header-text {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width:1025px) {
+  .header-container .header-text {
+    margin-left: 15%;
+    margin-right: 15%;
+  }
+  .docente h3 {
+    padding-left: 0;
+  }
 }

@@ -52,6 +52,12 @@ app.get('/', (req, res) => {
   });
 });
 
+app.all('/success', (req, res) => {
+  res.render('success', {
+    title: 'Test inviato con successo'
+  });
+});
+
 
 app.all('*', (req, res) => {
   res.render('404', {

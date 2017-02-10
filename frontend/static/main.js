@@ -1,16 +1,12 @@
-debugRispondi();
-
-function validateAnswer() {
+function debugRispondi(val) {
+  if (typeof val === 'undefined') val = 5;
   
-}
-
-function debugRispondi() {
   var forms = document.getElementsByTagName('form');
   var formsLength = forms.length;
   for (var formsIndex = 0; formsIndex < formsLength; formsIndex++) {
     var form = forms[formsIndex];
     var inputs = form.getElementsByTagName('input');
-    inputs[1].checked = true;
+    inputs[val].checked = true;
   }
 }
 
@@ -42,6 +38,7 @@ function sendTest() {
     }
     
     if (voto === null) {
+      form.className += ' missing';
       alert('Devi compilare tutte le risposte');
       //todo sarebbe bello dirgli quale non ha risposto tra tutte.
       return;
@@ -62,8 +59,6 @@ function sendTest() {
     });
   }
 
-  //todo mando il voto
-
   nanoajax.ajax({
       method: 'POST',
       body: JSON.stringify(dataToSend),
@@ -74,8 +69,15 @@ function sendTest() {
     },
 
     function (code, responseText) {
-      console.log(responseText);
+      if (code === 200) {
+        window.location.pathname = '/success'
+      }
     }
 
   );
+  
+}
+
+function removeMissing(element) {
+  element.classList.remove("missing");
 }

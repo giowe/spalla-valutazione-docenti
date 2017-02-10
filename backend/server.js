@@ -80,8 +80,7 @@ app.get('/docenti/:classe', (req, res) => {
 
 app.post('/votazioni', (req, res) => {
   const body = req.body;/*require('./fake-data.json');*/
-  console.log(body);
-
+  
   const studente = {
     id: uuid(),
     idClasse: sezioneCorrente
