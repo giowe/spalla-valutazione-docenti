@@ -1,7 +1,6 @@
 extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
-  link(rel="stylesheet" href="http://icono-49d6.kxcdn.com/icono.min.css")
 block content
   //todo navbar collapse
   div.navbar
@@ -18,7 +17,9 @@ block content
     div.navbarCollapsed
       ul 
         div.dropdown
-          i.dropbtn.icono-hamburger
+          //.icono-hamburger
+          div.dropbtn#nav-toggle 
+            span
           div.dropdown-content
             li.navbarC-container-link 
               a.navbar-link(href="#home" onClick="navbarScroll(this)") HOME
