@@ -122,10 +122,10 @@ app.post('/votazioni', (req, res) => {
     pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
+      idVotati.push(req.ip);
+      console.log('Registrazione eseguita da parte di ', req.ip);
     });
   });
-  idVotati.push(req.ip);
-  console.log('Registrazione eseguita da parte di ', req.ip);
 });
 
 app.all('*', (req, res) => {
