@@ -8,6 +8,46 @@ body {
   padding: 0;
 }
 
+.navbarCollapsed ul{
+  list-style-type: none;
+  position: fixed;
+  text-align: left;
+  width: 100%;
+  height: 35px;
+  margin: 0;
+  padding: 0;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+.navbarCollapsed .dropdown{
+  top: 50%;
+  margin-left: 1%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+.navbarCollapsed .dropdown .dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.25);
+  min-width: 160px;
+  z-index: 1;
+}
+.navbarCollapsed .dropdown-content a{
+  margin: 0;
+  display: block;
+  text-decoration: none; 
+  color: white;
+}
+.navbarCollapsed .dropdown-content .navbarC-container-link {
+  padding: 8px 16px;
+  text-align: center;
+}
+.navbarCollapsed .dropdown:hover .dropdown-content {
+    display: block;
+}
+.navbarCollapsed .dropdown-content .navbarC-container-link:hover{
+    background-color: rgba(0, 0, 0, 0.6);
+}
 .navbar ul {
   list-style-type: none;
   margin: 0;
@@ -163,8 +203,6 @@ ol h1 {
   text-align: center;
 }
 
-.domanda {}
-
 .domanda .testo-domanda {
   margin-top: 0;
 }
@@ -215,6 +253,21 @@ footer .footerText {
   right: 0;
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
+}
+
+@media (max-width:767px) {
+  .navbar {
+    display: none;
+  }
+  .navbarCollapsed ul {
+    display: inline-block;
+  }
+  .body-page {
+    margin-left: 0%;
+  }
+  .body-page .body-page-bg {
+    background-position: center center;
+  }
 }
 
 @media (max-width:1025px) {

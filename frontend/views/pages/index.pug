@@ -1,6 +1,7 @@
 extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
+  link(rel="stylesheet" href="http://icono-49d6.kxcdn.com/icono.min.css")
 block content
   //todo navbar collapse
   div.navbar
@@ -14,6 +15,18 @@ block content
         li.navbar-container-link
           a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
   div.body-page
+    div.navbarCollapsed
+      ul 
+        div.dropdown
+          i.dropbtn.icono-hamburger
+          div.dropdown-content
+            li.navbarC-container-link 
+              a.navbar-link(href="#home" onClick="navbarScroll(this)") HOME
+            each docente in docenti
+              li.navbarC-container-link 
+                a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+            li.navbarC-container-link 
+              a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
     div.body-page-bg(style="background-image: url(./static/images/pi_greco.jpg);")
       div.header-container#home
         div.header-container-text
