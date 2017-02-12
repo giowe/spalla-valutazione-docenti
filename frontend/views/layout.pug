@@ -3,16 +3,9 @@ html(lang='it')
   head
     title #{title}
     block head
-    link(rel="stylesheet" href="./static/main.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   body
     block content
       
-    footer
-      div.footerText
-        h2 sito realizzato dai martiri della 5F
-    
     block scripts  
-    script(src="./static/nanoajax.min.js")
-    script(src="./static/scroll.js")
-    script(src="./static/main.js")

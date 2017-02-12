@@ -57,6 +57,16 @@ app.all('/success', (req, res) => {
     title: 'Test inviato con successo'
   });
 });
+app.all('/votato', (req, res) => {
+  res.render('votato', {
+    title: 'Hai già votato'
+  });
+});
+app.all('/hack', (req, res) => {
+  res.render('hack', {
+    title: 'Povero illuso'
+  });
+});
 
 
 app.all('*', (req, res) => {
