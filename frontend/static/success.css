@@ -1,0 +1,48 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.body-page {
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: white;
+}
+
+.header-container {
+  height: 100vh;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.header-container .header-text {
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+  color: lime;
+  left: 0;
+  right: 0;
+  font-family: "Times New Roman", Georgia, Serif;
+}
+
+.header-container .header-text.hack {
+  color: red;
+}
+
+.header-text .testo1 {
+  font-size: 70px;
+}
+
+.header-text .testo2 {
+  font-size: 40px;
+}
+
+.header-text .testo3 {
+  font-size: 30px;
+}

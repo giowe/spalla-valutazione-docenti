@@ -8,12 +8,89 @@ body {
   padding: 0;
 }
 
+.navbarCollapsed ul{
+  list-style-type: none;
+  position: fixed;
+  text-align: left;
+  width: 100%;
+  height: 35px;
+  margin: 0;
+  padding: 0;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+.navbarCollapsed .dropdown{
+  top: 50%;
+  margin-left: 2%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+.navbarCollapsed .dropdown .dropdown-content {
+  display: none;
+  padding-top: 17px;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.25);
+  min-width: 200px;
+  z-index: 1;
+}
+.navbarCollapsed .dropdown-content a{
+  margin: 0;
+  display: block;
+  text-decoration: none; 
+  color: white;
+}
+.navbarCollapsed .dropdown-content .navbarC-container-link {
+  padding: 8px 16px;
+  text-align: center;
+}
+.navbarCollapsed .dropdown{
+  display: block;
+}
+.navbarCollapsed .dropdown:hover .dropdown-content {
+    display: block;
+}
+.navbarCollapsed .dropdown-content .navbarC-container-link:hover{
+    background-color: rgba(0, 0, 0, 0.6);
+}
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  padding-top: 5%;
+  width: 20%;
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.navbar-container-link .navbar-link {
+  display: block;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.navbar-container-link a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.navbar-container-link a:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+}
+
 .missing {
-  background: red;
+  background: rgba(253, 8, 8, 0.4);
 }
 
 .body-page {
-  background-position: center;
+  margin-left: 20%;
+}
+
+.body-page .body-page-bg {
+  background-position: 64% 50%;
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-color: white;
@@ -26,8 +103,8 @@ body {
 }
 
 .header-container .header-text {
-  margin-left: 25%;
-  margin-right: 25%;
+  margin-left: 10%;
+  margin-right: 10%;
   top: 50%;
   transform: translateY(-50%);
   position: absolute;
@@ -59,30 +136,26 @@ body {
   color: lime;
 }
 
-.body-page .bodyDomandeDocenti {
-  background-color:rgba(155, 155, 155, 0.3);
+.body-domande {
+  background-color: rgba(155, 155, 155, 0.3);
 }
 
-.bodyDomandeDocenti ul {
+.body-domande ul {
   list-style-type: none;
-  padding: 10%;
+  padding: 5%;
   margin-top: 0px;
   padding-top: 30px;
   padding-bottom: 15px;
   margin-bottom: 0;
 }
 
-.bodyDomandeDocenti ul .docente {
+.body-domande ul .docente {
   font-family: "Source Sans Pro", Arial, sans-serif;
   border-radius: 25px;
   padding: 20px;
   margin-bottom: 30px;
   background-color: rgba(255, 255, 255, 0.9);
   border: 0.25px solid #4a4b4c;
-}
-
-.docente ol {
-  padding-left: 0;
 }
 
 .docente .nome-docente {
@@ -100,19 +173,27 @@ body {
   transition-duration: 0.5s;
 }
 
-.body-page .bodyDomandeGenerali {
-  background-color: rgba(155, 155, 155, 0.3);
-}
-
-.bodyDomandeGenerali ol {
-  padding: 10%;
+.body-domande .body-docenti {
+  padding: 5%;
   margin-top: 0;
   padding-top: 30px;
   padding-bottom: 30px;
   margin-bottom: 0;
 }
 
-.bodyDomandeGenerali ol .domande-generali {
+.body-domande .body-generali {
+  padding: 5%;
+  margin-top: 0;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  margin-bottom: 0;
+}
+
+.body-domande .body-docenti .body-domande-docente {
+  padding: 2%;
+}
+
+.body-domande ol .domande-generali {
   font-family: "Source Sans Pro", Arial, sans-serif;
   border-radius: 25px;
   padding: 20px;
@@ -126,8 +207,6 @@ ol h1 {
   text-align: center;
 }
 
-.domanda {}
-
 .domanda .testo-domanda {
   margin-top: 0;
 }
@@ -135,9 +214,8 @@ ol h1 {
 .domanda .risposte-domanda {}
 
 .body-page .bodyBottone {
-  background-color:rgba(155, 155, 155, 0.3);
+  background-color: rgba(155, 155, 155, 0.3);
 }
-
 
 .bottone-send {
   padding-top: 30px;
@@ -146,10 +224,10 @@ ol h1 {
 
 .bottone-send button {
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.7);
-  border: 3px solid #555555;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 5px solid #555555;
   margin-bottom: 40px;
-  width: 20%;
+  width:30%;
   font-size: 16px;
   color: #555555;
   -webkit-transition-duration: 0.4s;
@@ -167,7 +245,7 @@ footer {
   bottom: 0;
   color: #4CAF50;
   background: #5f5f5f;
-  height: 150px;
+  height: 100px;
 }
 
 footer .footerText {
@@ -180,20 +258,51 @@ footer .footerText {
   -webkit-transition-duration: 0.4s;
   transition-duration: 0.4s;
 }
-
-@media (max-width:614px) {
-  .header-container .header-text {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+/* Hamburger*/
+#nav-toggle span, 
+#nav-toggle span:before,
+#nav-toggle span:after {
+  cursor: pointer;
+  border-radius: 1px;
+  height: 3px;
+  width: 25px;
+  background: white;
+  position: absolute;
+  display: block;
+  content: '';
+}
+#nav-toggle span:before {
+  top: -7px;
+}
+#nav-toggle span:after {
+  bottom: -7px; 
+}
+@media (max-width:426px) {
+  .body-page-bg .header-container .header-container-text .header-text .noText{
+    display: none;
+  }
+}
+@media (max-width:767px) {
+  .navbar {
+    display: none;
+  }
+  .navbarCollapsed ul {
+    display: inline-block;
+  }
+  .body-page {
+    margin-left: 0%;
+  }
+  .body-page .body-page-bg {
+    background-position: center center;
   }
 }
 
 @media (max-width:1025px) {
-  .header-container .header-text {
-    margin-left: 15%;
-    margin-right: 15%;
-  }
   .docente h3 {
     padding-left: 0;
+  }
+  .header-container .header-text {
+    margin-left: 3% !important;
+    margin-right: 3% !important;
   }
 }

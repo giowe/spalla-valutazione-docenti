@@ -4,36 +4,34 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const config = require('./config.json');
 const uuid = require('uuid/v4');
-
 const sezioneCorrente = process.argv[2];
+let idVotati = [];
+let idHacker = [];
+
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
-
-const pool  = mysql.createPool({
-    connectionLimit  : 10,
-    host             : "rds.soluzionifutura.it",
-    user             : "spalla_vdocenti",
-    database         : "spalla_vdocenti",
-    password         : config.dbPassword
-  }
-);
-
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: "rds.soluzionifutura.it",
+  user: "spalla_vdocenti",
+  database: "spalla_vdocenti",
+  password: config.dbPassword
+});
+let DNA;
 const app = new express();
 const port = 4000;
-
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin','*');
-  res.header('Access-Control-Allow-Methods','GET, OPTIONS, POST');
-  res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
 
 app.options('*', (req, res) => {
   res.sendStatus(200);
 });
-
 const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC`, (err, rows, fields) => {
@@ -60,27 +58,50 @@ app.get(`/domande/:type`, (req, res) => {
     res.json(rows);
   })
 });
-
 app.get('/docenti/:classe', (req, res) => {
   let classe = req.params.classe;
   if (classe === 'current') classe = sezioneCorrente;
-  
+
   const query = [
     'SELECT d.id, d.nome, d.cognome, d.materia FROM docenti d',
     'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
     'INNER JOIN classi c ON cd.idClasse = c.id',
     'WHERE c.id = ?'
   ].join(' ');
-  
+
   pool.query(query, [classe], (err, rows, fields) => {
     if (err) return res.status(500).json(err);
     res.json(rows);
   })
 });
 
+function isInArray(value, array) {
+  return array.indexOf(value) > -1;
+}
+//middleWare contro hacking e doppia votazione 
+app.use('/votazioni', (req, res, next) => {
+  const ipStudente = req.ip;
+  if (isInArray(ipStudente, idVotati)) {
+    res.status(600).json("{}");
+    return;
+  };
+  if (isInArray(ipStudente, idHacker)) {
+    res.status(601).json("{}");
+    return;
+  };
+  const body = req.body;
+  const Compatibilita = doRna(body);
+  if (Compatibilita) {
+    next();
+  } else {
+    idHacker.push(ipStudente);
+    res.status(601).json("{}");
+    return;
+  };
+});
 app.post('/votazioni', (req, res) => {
-  const body = req.body;/*require('./fake-data.json');*/
-  
+  const body = req.body; /*require('./fake-data.json');*/
+
   const studente = {
     id: uuid(),
     idClasse: sezioneCorrente
@@ -89,15 +110,20 @@ app.post('/votazioni', (req, res) => {
   const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
+      //todo si puo migliorare chiedi a Gio
+      if (domanda.voto > 5) domanda.voto = 5;
+      else if (domanda.voto == -1) domanda.voto = -1;
+      else if (domanda.voto < 1) domanda.voto = 1;
       votazioni.push([studente.id, docente.id, domanda.id, domanda.voto]);
     });
   });
-  
   pool.query('INSERT INTO studenti SET ?', [studente], (err, rows, fields) => {
     if (err) return res.status(500).json(err);
     pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
+      idVotati.push(req.ip);
+      console.log('Registrazione eseguita da parte di ', req.ip);
     });
   });
 });
@@ -114,4 +140,82 @@ app.all('*', (req, res) => {
 
 app.listen(port, () => {
   console.log(`backend listening on port ${port}`);
+  console.log('ATTENDERE il messaggio di creazione DNA PRIMA DI INIZIARE');
 });
+doDna();
+
+function doDna() {
+  let protoDNA = "";
+  let idDocentiCurrent = [];
+  let idDomandeDocCurrent = [];
+  let idDomandeGenCurrent = [];
+  const query = [
+    'SELECT d.id FROM docenti d',
+    'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
+    'INNER JOIN classi c ON cd.idClasse = c.id',
+    'WHERE c.id = ?'
+  ].join(' ');
+
+  pool.query(query, [sezioneCorrente], (err, rows, fields) => {
+    if (err) return console.log('Errore creazione DNA fase GetidDocenti');
+    rows.forEach(docente => {
+      idDocentiCurrent.push(docente.id);
+    });
+    let params = {
+      type: '0'
+    };
+    pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
+      if (err) return console.log('Errore creazione DNA fase GetDomandeDocenti');
+      rows.forEach(domanda => {
+        idDomandeDocCurrent.push(domanda.id);
+      });
+      params = {
+        type: '1'
+      };
+      pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
+        if (err) return console.log('Errore creazione DNA fase GetDomandeGenerali');
+        rows.forEach(domanda => {
+          idDomandeGenCurrent.push(domanda.id);
+        });
+
+        idDocentiCurrent.forEach(docente => {
+          protoDNA = protoDNA + docente;
+          idDomandeDocCurrent.forEach(domanda => {
+            protoDNA = protoDNA + domanda;
+          });
+        });
+        protoDNA = protoDNA + null;
+        idDomandeGenCurrent.forEach(domanda => {
+          protoDNA = protoDNA + domanda;
+        });
+        DNA = protoDNA;
+        console.log('Dna creato');
+      });
+    });
+  });
+};
+
+function doRna(body) {
+  let InDomGenId = [];
+  let protoRNA = "";
+  body.docenti.forEach(docente => {
+    if (docente.id !== null) {
+      protoRNA = protoRNA + docente.id;
+      docente.domande.forEach(domanda => {
+        protoRNA = protoRNA + domanda.id;  });
+    } else {
+      docente.domande.forEach(domanda => {
+        InDomGenId.push(domanda.id);
+      });
+    };
+  });
+  protoRNA = protoRNA + null;
+  InDomGenId.forEach(domanda => {
+    protoRNA = protoRNA + domanda;
+  });
+  if (DNA === protoRNA) {
+    return true;
+  } else {
+    return false;
+  }
+};

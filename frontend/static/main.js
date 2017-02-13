@@ -1,6 +1,6 @@
 function debugRispondi(val) {
-  if (typeof val === 'undefined') val = 5;
-  
+  if (typeof val === 'undefined') val = 4;
+
   var forms = document.getElementsByTagName('form');
   var formsLength = forms.length;
   for (var formsIndex = 0; formsIndex < formsLength; formsIndex++) {
@@ -14,7 +14,6 @@ function sendTest() {
   var dataToSend = {
     docenti: []
   };
-  
   var forms = document.getElementsByTagName('form');
   var formsLength = forms.length;
   for (var formsIndex = 0; formsIndex < formsLength; formsIndex++) {
@@ -25,26 +24,49 @@ function sendTest() {
     var inputs = form.getElementsByTagName('input');
     var inputsLength = inputs.length;
     var voto = null;
-    
+
     for (var inputIndex = 0; inputIndex < inputsLength; inputIndex++) {
       var input = inputs[inputIndex];
       if (input.checked) {
         voto = input.value;
         if (voto > 5) voto = 5;
         else if (isRequired && voto < 1) voto = 1;
-        else if ( !isRequired && voto < 1) voto = -1;
+        else if (!isRequired && voto < 1) voto = -1;
         break;
       }
     }
-    
+    //risparmio uso risorse = speed
     if (voto === null) {
-      form.className += ' missing';
-      alert('Devi compilare tutte le risposte');
-      //todo sarebbe bello dirgli quale non ha risposto tra tutte.
+      for (var i = 0; i < formsLength; i++) {
+        var form = forms[i];
+        var inputs = form.getElementsByTagName('input');
+        var inputsLength = inputs.length;
+        var voto = null;
+
+        for (var inputIndex = 0; inputIndex < inputsLength; inputIndex++) {
+          var input = inputs[inputIndex];
+          if (input.checked) {
+            voto = input.value;
+            if (voto > 5) voto = 5;
+            else if (isRequired && voto < 1) voto = 1;
+            else if (!isRequired && voto < 1) voto = -1;
+            break;
+          }
+        }
+        if (voto === null) {
+          var idDocDomUnChecked = form.getAttribute('idDocente');
+          if (idDocDomUnChecked === null) idDocDomUnChecked = '';
+          var idUnique = 'id' + idDocDomUnChecked + form.getAttribute('idDomanda');
+          var domandaUnChecked = document.getElementById(idUnique);
+          domandaUnChecked.classList.add('missing');
+        }
+      }
+      var idUnique = 'id' + idDocente + idDomanda;
+      scrollZhou(idUnique, 10);
+      alert('Attenzione non hai risposto a tutte le domande!');
       return;
     }
-    
-    var last = dataToSend.docenti[dataToSend.docenti.length-1];
+    var last = dataToSend.docenti[dataToSend.docenti.length - 1];
     if (!last || last.id !== idDocente) {
       //aggiungo nuovo docente
       dataToSend.docenti.push({
@@ -53,31 +75,48 @@ function sendTest() {
       })
     }
 
-    dataToSend.docenti[dataToSend.docenti.length-1].domande.push({
+    dataToSend.docenti[dataToSend.docenti.length - 1].domande.push({
       id: idDomanda,
       voto: voto
     });
   }
-
+  //todo nel backend controllo object
+  console.log(dataToSend);
   nanoajax.ajax({
       method: 'POST',
       body: JSON.stringify(dataToSend),
       headers: {
         'Content-Type': 'application/json'
       },
-      url:'http://192.168.1.231:4000/votazioni'
+      url: 'http://192.168.0.12:4000/votazioni'
     },
 
     function (code, responseText) {
+      console.log(code);
       if (code === 200) {
-        window.location.pathname = '/success'
-      }
-    }
-
-  );
-  
-}
+        window.location.pathname = '/success';
+      };
+      if (code === 600) {
+        window.location.pathname = '/votato';
+      };
+      if (code === 601) {
+        window.location.pathname = '/hack';
+      };
+    });
+};
 
 function removeMissing(element) {
-  element.classList.remove("missing");
+  var inputs = element.getElementsByTagName('input');
+  var inputsLength = inputs.length;
+  for (var inputIndex = 0; inputIndex < inputsLength; inputIndex++) {
+    var input = inputs[inputIndex];
+    if (input.checked) {
+      var idDocDomUnChecked = element.getAttribute('idDocente');
+      if (idDocDomUnChecked === null) idDocDomUnChecked = '';
+      var idUnique = 'id' + idDocDomUnChecked + element.getAttribute('idDomanda');
+      var domandaChecked = document.getElementById(idUnique);
+      domandaChecked.classList.remove('missing');
+      break;
+    }
+  }
 }

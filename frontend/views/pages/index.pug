@@ -1,51 +1,84 @@
 extends ../layout
-
+block head 
+  link(rel="stylesheet" href="./static/main.css")
 block content
-  div.body-page(style="background-image: url(./static/images/pi_greco.jpg);")
-      div.header-container
+  //todo navbar collapse
+  div.navbar
+    ul 
+      div.navbar-text 
+        li.navbar-container-link 
+          a.navbar-link(class= "active" href="#home" onClick="navbarScroll(this)") HOME
+        each docente in docenti
+          li.navbar-container-link
+            a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+        li.navbar-container-link
+          a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
+  div.body-page
+    div.navbarCollapsed
+      ul 
+        div.dropdown
+          //.icono-hamburger
+          div.dropbtn#nav-toggle 
+            span
+          div.dropdown-content
+            li.navbarC-container-link 
+              a.navbar-link(href="#home" onClick="navbarScroll(this)") HOME
+            each docente in docenti
+              li.navbarC-container-link 
+                a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+            li.navbarC-container-link 
+              a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
+    div.body-page-bg(style="background-image: url(./static/images/pi_greco.jpg);")
+      div.header-container#home
         div.header-container-text
           div.header-text
             h1 IL TANTO ATTESO QUESTIONARIO
-            h3 #[strong Prima di procedere leggere attentamente il foglio illustrativo:]
-            p Questa possibilità di esprimere il giudizio di ognuno di voi in modo anonimo verso i professori è stato possibile solo con la realizzazione di questo sito, vi preghiamo quindi di rispondere con massima sincerità alle domande generali che trovate a fine pagina; 
-            p Ah ultima cosa, ma non meno importante, se volete che la vostra votazione venga registrata in modo corretto compilate ogni quesito, Grazie e buono sfogo!
+            h3.noText #[strong Prima di procedere leggere attentamente il foglio illustrativo:]
+            p.noText Questa possibilità di esprimere il giudizio di ognuno di voi in modo anonimo verso i professori è stato possibile solo con la realizzazione di questo sito, vi preghiamo quindi di rispondere con massima sincerità alle domande generali che trovate a fine pagina; 
+            p.noText Ah ultima cosa, ma non meno importante, se volete che la vostra votazione venga registrata in modo corretto compilate ogni quesito, Grazie e buono sfogo!
             div.header-bottone
-              button(type="button" onClick="scrollToItem(docentiBodyDomande)") #[h3 Clicca per iniziare]
-      div.bodyDomandeDocenti
-          ul#docentiBodyDomande
-              each docente in docenti
-                li.docente
-                  h2.nome-docente Docente #{docente.nome} #{docente.cognome} #{docente.materia}
-                  h3 DOMANDE:
-                  ol
-                    each domanda in domandeDocenti
-                      div.container-domanda
-                        li.domanda
-                          p.testo-domanda #{domanda.testo}
-                          form.risposte-domanda(idDocente=docente.id idDomanda=domanda.id action="")
-                            if (!domanda.required)
-                              input(onclick="removeMissing(this)" type="radio" name="test" value=-1 checked="checked")
-                              |   NA   
-                    
-                            - for (var i = 1; i <= 5; i++)
-                              input(onclick="removeMissing(this)" type="radio" name="test" value=i)
-                              |   #{i}   
-      div.bodyDomandeGenerali
-          ol
-            div.domande-generali
-              h1 Domande generali
-              each domanda in domandeGenerali
-                div.container-domanda
-                  li.domanda 
-                    p.testo-domanda #{domanda.testo}
-                    form.risposte-domanda(idDocente=null idDomanda=domanda.id action="")
-                            if (!domanda.required)
-                              input(onclick="removeMissing(this)" type="radio" name="test" value=-1 checked="checked")
-                              |   NA   
-                    
-                            - for (var i = 1; i <= 5; i++)
-                              input(onclick="removeMissing(this)" type="radio" name="test" value=i)
-                              |   #{i}  
+              button(type="button" onClick="scrollZhou('docentiBodyDomande',2.5)") #[h3 Clicca per iniziare]
+      div.body-domande 
+        ul.body-docenti#docentiBodyDomande
+          each docente in docenti
+            li.docente(id = 'idDoc'+docente.id)
+              h2.nome-docente Docente #{docente.nome} #{docente.cognome} #{docente.materia}
+              h3 DOMANDE:
+              ol.body-domande-docente
+                each domanda in domandeDocenti
+                  div.container-domanda(id ='id' + docente.id + domanda.id)
+                    li.domanda
+                      p.testo-domanda #{domanda.testo}
+                      form.risposte-domanda(onclick="removeMissing(this)" idDocente=docente.id idDomanda=domanda.id action="")
+                        if (!domanda.required)
+                          input(type="radio" name="test" value=-1 checked="checked")
+                          |   NA   
+
+                        - for (var i = 1; i <= 5; i++)
+                          input(type="radio" name="test" value=i)
+                          |   #{i}   
+        ol.body-generali
+          div.domande-generali(id='idDocnull')
+            h1 Domande generali
+            each domanda in domandeGenerali
+              div.container-domanda(id ='id'+ domanda.id)
+                li.domanda 
+                  p.testo-domanda #{domanda.testo}
+                  form.risposte-domanda(onclick="removeMissing(this)" idDocente=null idDomanda=domanda.id action="")
+                    if (!domanda.required)
+                      input(type="radio" name="test" value=-1 checked="checked")
+                      |   NA   
+
+                    - for (var i = 1; i <= 5; i++)
+                      input(type="radio" name="test" value=i)
+                      |   #{i}  
       div.bodyBottone
-          div.bottone-send   
-            button(type="button"  onclick="sendTest()") #[h3 Invia il test]
+        div.bottone-send   
+          button(type="button"  onclick="sendTest()") #[h3 Invia il test]
+  footer
+    div.footerText
+      h2 Sito realizzato dai ragazzi della 5F 
+block scripts 
+  script(src="./static/nanoajax.min.js")
+  script(src="./static/scroll.js")
+  script(src="./static/main.js")
