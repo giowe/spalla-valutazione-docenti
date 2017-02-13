@@ -5,13 +5,13 @@ block content
   div.navbar
     ul 
       div.navbar-text 
-        li.navbar-container-link 
-          a.navbar-link(class= "active" href="#home" onClick="navbarScroll(this)") HOME
+        li.navbar-container-link
+          a.navbar-link.static-navbar-link(class= "active" href="#home" onClick="navbarScroll(this)") HOME
         each docente in docenti
           li.navbar-container-link
-            a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
         li.navbar-container-link
-          a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
+          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
       div.navbar-info
         h3 Ricorda:
         p 1 = Completamente in disaccordo
