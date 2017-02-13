@@ -53,14 +53,17 @@ function getNavbarAncor(){
     ArraySection.push(navbarLinks[navbarLinksIndex].hash.substr(1));
   }
   ArraySectionLength = ArraySection.length;
-  console.log(ArraySection, ArraySectionLength);
 }
 window.onscroll = function(e){
   userHasScrolled =true;
   if(userHasScrolled){
     for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++){
-      if(isInViewport(ArraySection[navbarLinksIndex])){
-        
+      var isInViewportElem = ArraySection[navbarLinksIndex];
+      var aNavLink = document.getElementById('idNav'+isInViewportElem);
+      if(isInViewport(isInViewportElem)){
+        aNavLink.classList.add('active');
+      }else{
+        aNavLink.classList.remove('active');
       }
     }
     userHasScrolled = false;
@@ -71,7 +74,7 @@ function isInViewport(element) {//return true if is in viewport
   var rect = element.getBoundingClientRect();
   var html = document.documentElement;
   return (
-    rect.top <= 0 &&
+    rect.top <= 25 &&
     rect.bottom >= 0 /*&&
     rect.left >= 0  &&
     rect.bottom <= (window.innerHeight || html.clientHeight) &&
