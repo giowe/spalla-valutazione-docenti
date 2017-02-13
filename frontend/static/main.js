@@ -61,8 +61,8 @@ function sendTest() {
           domandaUnChecked.classList.add('missing');
         }
       }
-      var idUnique = 'id' + idDocente + idDomanda;
-      scrollZhou(idUnique, 10);
+      var idUnique = 'idDoc' + idDocente;
+      scrollZhou(idUnique,150);
       alert('Attenzione non hai risposto a tutte le domande!');
       return;
     }

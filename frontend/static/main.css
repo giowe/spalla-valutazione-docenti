@@ -19,6 +19,10 @@ body {
   display: none;
   background-color: rgba(0, 0, 0, 0.9);
 }
+::-webkit-scrollbar{
+  width: 0px;
+  background: transparent;
+}
 .navbarCollapsed .dropdown{
   top: 50%;
   margin-left: 2%;
@@ -35,12 +39,12 @@ body {
 }
 .navbarCollapsed .dropdown-content a{
   margin: 0;
+  padding: 8px 16px;
   display: block;
   text-decoration: none; 
   color: white;
 }
 .navbarCollapsed .dropdown-content .navbarC-container-link {
-  padding: 8px 16px;
   text-align: center;
 }
 .navbarCollapsed .dropdown{
@@ -61,11 +65,13 @@ body {
   background-color: rgb(67, 68, 68);
   position: fixed;
   height: 100%;
-  overflow: auto;
+  overflow:  auto;
+  overflow-x: hidden;
 }
 .navbar .navbar-info{
   color: white;
   padding: 5%;
+  padding-bottom: 60px;
 }
 .navbar-container-link .navbar-link {
   display: block;
@@ -244,8 +250,6 @@ ol h1 {
 }
 
 footer {
-  margin-left: 20%;
-  z-index: -1;
   position: relative;
   bottom: 0;
   color: #4CAF50;

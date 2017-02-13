@@ -39,7 +39,7 @@ function scrollZhou(eID, speed) {
 function navbarScroll(elem) {
   var docID = elem.getAttribute("href")
   docID = docID.substr(1);
-  scrollZhou(docID, 200);
+  scrollZhou(docID, 150);
 }
 //todo se ri riesce a usarlo si puo activare i link della navbar
 function isInViewport(element) {

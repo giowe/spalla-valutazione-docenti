@@ -2,7 +2,6 @@ extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
 block content
-  //todo navbar collapse
   div.navbar
     ul 
       div.navbar-text 
@@ -24,7 +23,6 @@ block content
     div.navbarCollapsed
       ul 
         div.dropdown
-          //.icono-hamburger
           div.dropbtn#nav-toggle 
             span
           div.dropdown-content
@@ -82,9 +80,9 @@ block content
       div.bodyBottone
         div.bottone-send   
           button(type="button"  onclick="sendTest()") #[h3 Invia il test]
-  footer
-    div.footerText
-      h2 Sito realizzato dai ragazzi della 5F 
+    footer
+      div.footerText
+        h2 Sito realizzato dai ragazzi della 5F 
 block scripts 
   script(src="./static/nanoajax.min.js")
   script(src="./static/scroll.js")
