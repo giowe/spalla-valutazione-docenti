@@ -196,34 +196,18 @@ function doDna() {
 };
 
 function doRna(body) {
-  let InDocentiId = [];
-  let InDomDocId = [];
   let InDomGenId = [];
   let protoRNA = "";
   body.docenti.forEach(docente => {
     if (docente.id !== null) {
-      InDocentiId.push(docente.id);
+      protoRNA = protoRNA + docente.id;
+      docente.domande.forEach(domanda => {
+        protoRNA = protoRNA + domanda.id;  });
     } else {
       docente.domande.forEach(domanda => {
         InDomGenId.push(domanda.id);
       });
     };
-  });
-  let boleano = false;
-  //todo da migliorare , non mi prende il break;
-  body.docenti.forEach(docente => {
-    if (docente.id !== null && boleano == false) {
-      docente.domande.forEach(domanda => {
-        InDomDocId.push(domanda.id);
-      });
-      boleano = true;
-    };
-  });
-  InDocentiId.forEach(docente => {
-    protoRNA = protoRNA + docente;
-    InDomDocId.forEach(domanda => {
-      protoRNA = protoRNA + domanda;
-    });
   });
   protoRNA = protoRNA + null;
   InDomGenId.forEach(domanda => {
