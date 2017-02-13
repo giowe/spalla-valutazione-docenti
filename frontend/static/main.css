@@ -23,15 +23,21 @@ body {
   width: 0px;
   background: transparent;
 }
+.navbarCollapsed .dropdown .menu .menu-text{
+  margin-left: 35px;
+  margin-bottom: 0;
+  padding-bottom: 10px;
+}
 .navbarCollapsed .dropdown{
   top: 50%;
   margin-left: 2%;
+  margin-bottom: 0;
+  color: white;
   transform: translateY(-50%);
   position: absolute;
 }
 .navbarCollapsed .dropdown .dropdown-content {
   display: none;
-  padding-top: 17px;
   position: absolute;
   background-color: rgba(0, 0, 0, 0.25);
   min-width: 200px;
@@ -268,6 +274,11 @@ footer .footerText {
   transition-duration: 0.4s;
 }
 /* Hamburger*/
+#nav-toggle {
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+}
 #nav-toggle span, 
 #nav-toggle span:before,
 #nav-toggle span:after {
