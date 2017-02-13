@@ -6,10 +6,9 @@ const config = require('./config.json');
 const uuid = require('uuid/v4');
 const sezioneCorrente = process.argv[2];
 let idVotati = [];
-let idHacker = [];
 
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
-console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
+//console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: "rds.soluzionifutura.it",
@@ -17,7 +16,7 @@ const pool = mysql.createPool({
   database: "spalla_vdocenti",
   password: config.dbPassword
 });
-let DNA;
+let passString = "";
 const app = new express();
 const port = 4000;
 app.use(bodyParser.json());
@@ -85,19 +84,15 @@ app.use('/votazioni', (req, res, next) => {
     res.status(600).json("{}");
     return;
   };
-  if (isInArray(ipStudente, idHacker)) {
-    res.status(601).json("{}");
-    return;
-  };
   const body = req.body;
-  const Compatibilita = doRna(body);
+  let Compatibilita = controlData(body);
   if (Compatibilita) {
     next();
   } else {
-    idHacker.push(ipStudente);
     res.status(601).json("{}");
     return;
   };
+
 });
 app.post('/votazioni', (req, res) => {
   const body = req.body; /*require('./fake-data.json');*/
@@ -110,10 +105,9 @@ app.post('/votazioni', (req, res) => {
   const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
-      //todo si puo migliorare chiedi a Gio
+      //todo sarebbe bello se si controllasse con il db per il required
       if (domanda.voto > 5) domanda.voto = 5;
-      else if (domanda.voto == -1) domanda.voto = -1;
-      else if (domanda.voto < 1) domanda.voto = 1;
+      else if (domanda.voto < 1 && domanda.voto !== -1) domanda.voto = 1;
       votazioni.push([studente.id, docente.id, domanda.id, domanda.voto]);
     });
   });
@@ -139,13 +133,12 @@ app.all('*', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`backend listening on port ${port}`);
-  console.log('ATTENDERE il messaggio di creazione DNA PRIMA DI INIZIARE');
+  //console.log(`backend listening on port ${port}`);
+  console.log('ATTENDERE BACKEND "backend pronto"');
 });
-doDna();
+generatePassString();
 
-function doDna() {
-  let protoDNA = "";
+function generatePassString() {
   let idDocentiCurrent = [];
   let idDomandeDocCurrent = [];
   let idDomandeGenCurrent = [];
@@ -157,7 +150,7 @@ function doDna() {
   ].join(' ');
 
   pool.query(query, [sezioneCorrente], (err, rows, fields) => {
-    if (err) return console.log('Errore creazione DNA fase GetidDocenti');
+    if (err) return console.log('Errore creazione passString fase GetidDocenti');
     rows.forEach(docente => {
       idDocentiCurrent.push(docente.id);
     });
@@ -165,7 +158,7 @@ function doDna() {
       type: '0'
     };
     pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-      if (err) return console.log('Errore creazione DNA fase GetDomandeDocenti');
+      if (err) return console.log('Errore creazione passString fase GetDomandeDocenti');
       rows.forEach(domanda => {
         idDomandeDocCurrent.push(domanda.id);
       });
@@ -173,36 +166,35 @@ function doDna() {
         type: '1'
       };
       pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-        if (err) return console.log('Errore creazione DNA fase GetDomandeGenerali');
+        if (err) return console.log('Errore creazione passString fase GetDomandeGenerali');
         rows.forEach(domanda => {
           idDomandeGenCurrent.push(domanda.id);
         });
-
         idDocentiCurrent.forEach(docente => {
-          protoDNA = protoDNA + docente;
+          passString = passString + docente;
           idDomandeDocCurrent.forEach(domanda => {
-            protoDNA = protoDNA + domanda;
+            passString = passString + domanda;
           });
         });
-        protoDNA = protoDNA + null;
+        passString = passString + null;
         idDomandeGenCurrent.forEach(domanda => {
-          protoDNA = protoDNA + domanda;
+          passString = passString + domanda;
         });
-        DNA = protoDNA;
-        console.log('Dna creato');
+        console.log('backend pronto');
       });
     });
   });
 };
 
-function doRna(body) {
+function controlData(body) {
   let InDomGenId = [];
   let protoRNA = "";
   body.docenti.forEach(docente => {
     if (docente.id !== null) {
       protoRNA = protoRNA + docente.id;
       docente.domande.forEach(domanda => {
-        protoRNA = protoRNA + domanda.id;  });
+        protoRNA = protoRNA + domanda.id;
+      });
     } else {
       docente.domande.forEach(domanda => {
         InDomGenId.push(domanda.id);
@@ -213,7 +205,7 @@ function doRna(body) {
   InDomGenId.forEach(domanda => {
     protoRNA = protoRNA + domanda;
   });
-  if (DNA === protoRNA) {
+  if (passString === protoRNA) {
     return true;
   } else {
     return false;
