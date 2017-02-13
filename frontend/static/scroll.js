@@ -6,6 +6,12 @@ function scrollZhou(eID, speed) {
   var elem = document.getElementById(eID);
   var elemOffset = elem.offsetTop;
 
+  if (windowPos > elemOffset) {
+    speed = (windowPos - elemOffset)/speed;
+  } 
+  if (windowPos < elemOffset) {
+    speed = (elemOffset - windowPos)/speed;
+  } 
   var counter = setInterval(function () {
     windowPos;
 
@@ -33,7 +39,7 @@ function scrollZhou(eID, speed) {
 function navbarScroll(elem) {
   var docID = elem.getAttribute("href")
   docID = docID.substr(1);
-  scrollZhou(docID, 10);
+  scrollZhou(docID, 200);
 }
 //todo se ri riesce a usarlo si puo activare i link della navbar
 function isInViewport(element) {

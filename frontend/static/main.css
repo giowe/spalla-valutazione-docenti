@@ -58,12 +58,15 @@ body {
   padding: 0;
   padding-top: 5%;
   width: 20%;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgb(67, 68, 68);
   position: fixed;
   height: 100%;
   overflow: auto;
 }
-
+.navbar .navbar-info{
+  color: white;
+  padding: 5%;
+}
 .navbar-container-link .navbar-link {
   display: block;
   color: white;
@@ -241,11 +244,13 @@ ol h1 {
 }
 
 footer {
+  margin-left: 20%;
+  z-index: -1;
   position: relative;
   bottom: 0;
   color: #4CAF50;
   background: #5f5f5f;
-  height: 100px;
+  height: 70px;
 }
 
 footer .footerText {

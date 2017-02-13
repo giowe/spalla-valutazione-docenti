@@ -88,7 +88,7 @@ function sendTest() {
       headers: {
         'Content-Type': 'application/json'
       },
-      url: 'http://192.168.0.12:4000/votazioni'
+      url: 'http://localhost:4000/votazioni'
     },
 
     function (code, responseText) {
