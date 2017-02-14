@@ -7,11 +7,11 @@ function scrollZhou(eID, speed) {
   var elemOffset = elem.offsetTop;
 
   if (windowPos > elemOffset) {
-    speed = (windowPos - elemOffset)/speed;
-  } 
+    speed = (windowPos - elemOffset) / speed;
+  }
   if (windowPos < elemOffset) {
-    speed = (elemOffset - windowPos)/speed;
-  } 
+    speed = (elemOffset - windowPos) / speed;
+  }
   var counter = setInterval(function () {
     windowPos;
 
@@ -43,42 +43,50 @@ function navbarScroll(elem) {
 }
 //todo se ri riesce a usarlo si puo activare i link della navbar
 var userHasScrolled = false;
-var ArraySection =[];
+var ArraySection = [];
 var ArraySectionLength;
 window.onload = getNavbarAncor();
-function getNavbarAncor(){
+
+function getNavbarAncor() {
   var navbarLinks = document.getElementsByClassName('static-navbar-link');
   var navbarLinksLength = navbarLinks.length;
-  for (var navbarLinksIndex = 0; navbarLinksIndex < navbarLinksLength; navbarLinksIndex++){
+  for (var navbarLinksIndex = 0; navbarLinksIndex < navbarLinksLength; navbarLinksIndex++) {
     ArraySection.push(navbarLinks[navbarLinksIndex].hash.substr(1));
   }
   ArraySectionLength = ArraySection.length;
 }
-window.onscroll = function(e){
-  userHasScrolled =true;
-  if(userHasScrolled){
-    for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++){
+window.onscroll = function (e) {
+  userHasScrolled = true;
+  if (userHasScrolled) {
+    for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++) {
       var isInViewportElem = ArraySection[navbarLinksIndex];
-      var aNavLink = document.getElementById('idNav'+isInViewportElem);
-      if(isInViewport(isInViewportElem)){
+      var aNavLink = document.getElementById('idNav' + isInViewportElem);
+      if (isInViewport(isInViewportElem)) {
+        if (navbarLinksIndex !== 0) {
+          var aPrevElem =  document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
+          aPrevElem.classList.remove('active');
+        }
+        if(navbarLinksIndex !== (ArraySectionLength - 1)){
+          var aNextElem =  document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
+          aNextElem.classList.remove('active');
+        }
         aNavLink.classList.add('active');
-      }else{
-        aNavLink.classList.remove('active');
       }
     }
     userHasScrolled = false;
   }
 }
-function isInViewport(element) {//return true if is in viewport
+
+function isInViewport(element) { //return true if is in viewport
   element = document.getElementById(element);
   var rect = element.getBoundingClientRect();
   var html = document.documentElement;
   return (
-    rect.top <= 25 &&
-    rect.bottom >= 0 /*&&
-    rect.left >= 0  &&
-    rect.bottom <= (window.innerHeight || html.clientHeight) &&
-  rect.right <= (window.innerWidth || html.clientWidth)*/
+    rect.top <= 10 &&
+    rect.bottom >= 0
+    /*&&
+       rect.left >= 0  &&
+       rect.bottom <= (window.innerHeight || html.clientHeight) &&
+     rect.right <= (window.innerWidth || html.clientWidth)*/
   );
 }
-
