@@ -1,4 +1,3 @@
-//js of ZHOU 
 function scrollZhou(eID, speed) {
   var windowObject = window;
   var windowPos = windowObject.pageYOffset;
@@ -55,7 +54,15 @@ function getNavbarAncor() {
   }
   ArraySectionLength = ArraySection.length;
 }
-window.onload = function (e) {
+window.onload = loopIsInViewport();
+window.onscroll = function (e) {
+  userHasScrolled = true;
+  if (userHasScrolled) {
+    loopIsInViewport();
+    userHasScrolled = false;
+  }
+}
+function loopIsInViewport(){
   for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++) {
     var isInViewportElem = ArraySection[navbarLinksIndex];
     var aNavLink = document.getElementById('idNav' + isInViewportElem);
@@ -72,28 +79,6 @@ window.onload = function (e) {
     }
   }
 }
-window.onscroll = function (e) {
-  userHasScrolled = true;
-  if (userHasScrolled) {
-    for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++) {
-      var isInViewportElem = ArraySection[navbarLinksIndex];
-      var aNavLink = document.getElementById('idNav' + isInViewportElem);
-      if (isInViewport(isInViewportElem)) {
-        if (navbarLinksIndex !== 0) {
-          var aPrevElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
-          aPrevElem.classList.remove('active');
-        }
-        if (navbarLinksIndex !== (ArraySectionLength - 1)) {
-          var aNextElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
-          aNextElem.classList.remove('active');
-        }
-        aNavLink.classList.add('active');
-      }
-    }
-    userHasScrolled = false;
-  }
-}
-
 function isInViewport(element) { //return true if is in viewport
   element = document.getElementById(element);
   var rect = element.getBoundingClientRect();
