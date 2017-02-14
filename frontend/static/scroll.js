@@ -55,6 +55,23 @@ function getNavbarAncor() {
   }
   ArraySectionLength = ArraySection.length;
 }
+window.onload = function (e) {
+  for (var navbarLinksIndex = 0; navbarLinksIndex < ArraySectionLength; navbarLinksIndex++) {
+    var isInViewportElem = ArraySection[navbarLinksIndex];
+    var aNavLink = document.getElementById('idNav' + isInViewportElem);
+    if (isInViewport(isInViewportElem)) {
+      if (navbarLinksIndex !== 0) {
+        var aPrevElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
+        aPrevElem.classList.remove('active');
+      }
+      if (navbarLinksIndex !== (ArraySectionLength - 1)) {
+        var aNextElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
+        aNextElem.classList.remove('active');
+      }
+      aNavLink.classList.add('active');
+    }
+  }
+}
 window.onscroll = function (e) {
   userHasScrolled = true;
   if (userHasScrolled) {
@@ -63,11 +80,11 @@ window.onscroll = function (e) {
       var aNavLink = document.getElementById('idNav' + isInViewportElem);
       if (isInViewport(isInViewportElem)) {
         if (navbarLinksIndex !== 0) {
-          var aPrevElem =  document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
+          var aPrevElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
           aPrevElem.classList.remove('active');
         }
-        if(navbarLinksIndex !== (ArraySectionLength - 1)){
-          var aNextElem =  document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
+        if (navbarLinksIndex !== (ArraySectionLength - 1)) {
+          var aNextElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
           aNextElem.classList.remove('active');
         }
         aNavLink.classList.add('active');
