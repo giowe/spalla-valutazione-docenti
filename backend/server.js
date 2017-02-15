@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const config = require('./config.json');
 const uuid = require('uuid/v4');
+const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
 let idVotati = [];
-
+let domandeInfoDB = [];
+let passString = "";
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 //console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
 const pool = mysql.createPool({
@@ -16,7 +18,6 @@ const pool = mysql.createPool({
   database: "spalla_vdocenti",
   password: config.dbPassword
 });
-let passString = "";
 const app = new express();
 const port = 4000;
 app.use(bodyParser.json());
@@ -101,7 +102,6 @@ app.post('/votazioni', (req, res) => {
     id: uuid(),
     idClasse: sezioneCorrente
   };
-
   const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
@@ -121,7 +121,45 @@ app.post('/votazioni', (req, res) => {
     });
   });
 });
-
+app.get('/risultati/:idDocente', (req, res) => {
+  let idDocenteReq;
+  try {
+    idDocenteReq = parseInt(req.params.idDocente);
+  } catch (err) {
+    return res.status(400).json(err);
+  }
+  //per AVG docenti
+  let asyncFunctions = [];
+  let copiaDomandeInfoDB = domandeInfoDB;
+  domandeInfoDB.forEach(domanda => {
+    if (domanda.type === 0) {
+      asyncFunctions.push((cb) => {
+        const domandaId = copiaDomandeInfoDB[0];
+        copiaDomandeInfoDB.shift();
+        if (domandaId.type === 0) {
+          //const query = `SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ${idDocenteReq} AND idDomanda = ${domandaId.id};`;
+          let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
+          query = mysql.format(query, [idDocenteReq, domandaId.id]);
+          pool.query(query, (err, rows, fields) => {
+            if (err) return cb(err);
+            cb(null, rows);
+          });
+        };
+      });
+    };
+  });
+  parallel(asyncFunctions, (err, results) => {
+    if (err) return res.render('error', {
+      err: err
+    });
+    let risultati = [];
+    results.forEach(domanda => {
+      console.log(domanda);
+      risultati.push(domanda);
+    });
+    res.status(200).json(risultati);
+  });
+});
 app.all('*', (req, res) => {
   res.status(404).json({
     error: {
@@ -137,6 +175,7 @@ app.listen(port, () => {
   console.log('ATTENDERE BACKEND "backend pronto"');
 });
 generatePassString();
+getDomande();
 
 function generatePassString() {
   let idDocentiCurrent = [];
@@ -211,3 +250,22 @@ function controlData(body) {
     return false;
   }
 };
+
+function getDomande() {
+  pool.query(`SELECT id , required , type FROM domande`, (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    rows.forEach(domanda => {
+      const Dom = composeDomande(domanda.id, domanda.required, domanda.type);
+      domandeInfoDB.push(Dom);
+    });
+  });
+};
+
+function composeDomande(idDom, isRequired, typeDom) {
+  const domanda = {
+    id: idDom,
+    required: isRequired,
+    type: typeDom
+  }
+  return domanda;
+}
