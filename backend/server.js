@@ -266,21 +266,3 @@ function composeDomande(idDom, isRequired, typeDom) {
   }
   return domanda;
 }
-
-function generateArrayQuery(arrayDomande) {
-  let ArrayQuery = [];
-  arrayDomande.forEach(domanda => {
-    ArrayQuery.push((cb) => {
-      const domandaId = copiaDomandeDB[0];
-      copiaDomandeDB.shift();
-      let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
-      query = mysql.format(query, [idDocenteReq, domandaId.id]);
-      pool.query(query, (err, rows, fields) => {
-        if (err) return cb(err);
-        cb(null, rows);
-      });
-    });
-    console.log(ArrayQuery);
-    return ArrayQuery;
-  })
-}
