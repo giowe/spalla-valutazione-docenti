@@ -7,7 +7,8 @@ const uuid = require('uuid/v4');
 const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
 let idVotati = [];
-let domandeInfoDB = [];
+let domandeGeneraliDB = [];
+let domandeDocentiDB = [];
 let passString = "";
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 //console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
@@ -122,31 +123,24 @@ app.post('/votazioni', (req, res) => {
   });
 });
 app.get('/risultati/:idDocente', (req, res) => {
-  let idDocenteReq;
-  try {
-    idDocenteReq = parseInt(req.params.idDocente);
-  } catch (err) {
-    return res.status(400).json(err);
-  }
-  //per AVG docenti
+  let idDocenteReq = parseInt(req.params.idDocente);
+  let copiaDomandeDB = [];
   let asyncFunctions = [];
-  let copiaDomandeInfoDB = domandeInfoDB;
-  domandeInfoDB.forEach(domanda => {
-    if (domanda.type === 0) {
-      asyncFunctions.push((cb) => {
-        const domandaId = copiaDomandeInfoDB[0];
-        copiaDomandeInfoDB.shift();
-        if (domandaId.type === 0) {
-          //const query = `SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ${idDocenteReq} AND idDomanda = ${domandaId.id};`;
-          let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
-          query = mysql.format(query, [idDocenteReq, domandaId.id]);
-          pool.query(query, (err, rows, fields) => {
-            if (err) return cb(err);
-            cb(null, rows);
-          });
-        };
+  domandeDocentiDB.forEach(domanda => {
+    copiaDomandeDB.push(domanda);
+  })
+  copiaDomandeDB.forEach(domanda => {
+    asyncFunctions.push((cb) => {
+      const domandaId = copiaDomandeDB[0];
+      copiaDomandeDB.shift();
+      let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
+      query = mysql.format(query, [idDocenteReq, domandaId.id]);
+      console.log(query);
+      pool.query(query, (err, rows, fields) => {
+        if (err) return cb(err);
+        cb(null, rows);
       });
-    };
+    });
   });
   parallel(asyncFunctions, (err, results) => {
     if (err) return res.render('error', {
@@ -154,10 +148,9 @@ app.get('/risultati/:idDocente', (req, res) => {
     });
     let risultati = [];
     results.forEach(domanda => {
-      console.log(domanda);
       risultati.push(domanda);
     });
-    res.status(200).json(risultati);
+    return res.status(200).json(risultati);
   });
 });
 app.all('*', (req, res) => {
@@ -256,7 +249,11 @@ function getDomande() {
     if (err) return res.status(500).json(err);
     rows.forEach(domanda => {
       const Dom = composeDomande(domanda.id, domanda.required, domanda.type);
-      domandeInfoDB.push(Dom);
+      if (domanda.type === 0) {
+        domandeDocentiDB.push(Dom);
+      } else {
+        domandeGeneraliDB.push(Dom);
+      }
     });
   });
 };
@@ -268,4 +265,22 @@ function composeDomande(idDom, isRequired, typeDom) {
     type: typeDom
   }
   return domanda;
+}
+
+function generateArrayQuery(arrayDomande) {
+  let ArrayQuery = [];
+  arrayDomande.forEach(domanda => {
+    ArrayQuery.push((cb) => {
+      const domandaId = copiaDomandeDB[0];
+      copiaDomandeDB.shift();
+      let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
+      query = mysql.format(query, [idDocenteReq, domandaId.id]);
+      pool.query(query, (err, rows, fields) => {
+        if (err) return cb(err);
+        cb(null, rows);
+      });
+    });
+    console.log(ArrayQuery);
+    return ArrayQuery;
+  })
 }
