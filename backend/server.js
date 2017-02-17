@@ -90,7 +90,7 @@ app.use('/votazioni', (req, res, next) => {
     return;
   };
   const body = req.body;
-  const Compatibilita = doRna(body);
+  const Compatibilita = generateRna(body);
   if (Compatibilita) {
     next();
   } else {
@@ -142,9 +142,9 @@ app.listen(port, () => {
   console.log(`backend listening on port ${port}`);
   console.log('ATTENDERE il messaggio di creazione DNA PRIMA DI INIZIARE');
 });
-doDna();
+generateDna();
 
-function doDna() {
+function generateDna() {
   let protoDNA = "";
   let idDocentiCurrent = [];
   let idDomandeDocCurrent = [];
@@ -195,7 +195,7 @@ function doDna() {
   });
 };
 
-function doRna(body) {
+function generateRna(body) {
   let InDomGenId = [];
   let protoRNA = "";
   body.docenti.forEach(docente => {
