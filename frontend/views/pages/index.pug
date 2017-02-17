@@ -2,24 +2,6 @@ extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
 block content
-  script
-    function generateString(val){
-    if(val === 1){
-    return 'Completamente in disaccordo'
-    }
-    if(val === 2){
-    return 'In disaccordo'
-    }
-    if(val === 3){
-    return 'Abbastamza d'accordo'
-    }
-    if(val === 4){
-    return 'D'accordo'
-    }
-    if(val === 5){
-    return 'Completamente d'accordo'
-    }
-    };
   div.navbar
     ul 
       div.navbar-text 
@@ -30,13 +12,6 @@ block content
             a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)" id = 'idNavidDoc'+docente.id) #{docente.nome} #{docente.cognome}
         li.navbar-container-link
           a.navbar-link.static-navbar-link(href="#idDocnull" onClick="navbarScroll(this)" id = 'idNavidDocnull') DOMANDE GENERALI
-      div.navbar-info
-        h3 Ricorda:
-        p 1 = Completamente in disaccordo
-        p 2 = In disaccordo
-        p 3 = Abbastamza d'accordo
-        p 4 = D'accordo
-        p 5 = Completamente d'accordo
   div.body-page
     div.navbarCollapsed
       ul 
@@ -75,13 +50,25 @@ block content
                     li.domanda
                       p.testo-domanda #{domanda.testo}
                       form.risposte-domanda(onclick="removeMissing(this)" idDocente=docente.id idDomanda=domanda.id action="")
-                        if (!domanda.required)
-                          input(type="radio" name="test" value=-1 checked="checked")
-                          |   NA   
-
-                        - for (var i = 1; i <= 5; i++)
-                          input(type="radio" name="test" value=i)
-                          |   #{i}   
+                        - var stringa = "";
+                        -if (!domanda.required){ 
+                          -stringa = 'Non rispondo'
+                          div.tooltip
+                            input(type="radio" name="test" value=-1 checked="checked")
+                            |   NA   
+                            span.tooltiptext #{stringa}
+                        -}
+                        - for (var i = 1; i <= 5; i++){ 
+                          div.tooltip
+                            input(type="radio" name="test" value=i) 
+                            |   #{i}   
+                            -if(i == 1){stringa = 'Completamente in disaccordo'}
+                            -if(i == 2){stringa = 'In disaccordo'}
+                            -if(i == 3){stringa = `Abbastamza d'accordo`}
+                            -if(i == 4){stringa = `D'accordo`}
+                            -if(i == 5){stringa = `Completamente d'accordo`} 
+                            span.tooltiptext #{stringa}
+                        -}
         ol.body-generali
           div.domande-generali(id='idDocnull')
             h1 Domande generali
@@ -90,13 +77,23 @@ block content
                 li.domanda 
                   p.testo-domanda #{domanda.testo}
                   form.risposte-domanda(onclick="removeMissing(this)" idDocente=null idDomanda=domanda.id action="")
-                    if (!domanda.required)
-                      input(type="radio" name="test" value=-1 checked="checked")
-                      |   NA   
-
-                    - for (var i = 1; i <= 5; i++)
-                      input(type="radio" name="test" value=i)
-                      |   #{i}  
+                    -if (!domanda.required){ 
+                          div.tooltip
+                            input(type="radio" name="test" value=-1 checked="checked")
+                            |   NA   
+                            span.tooltiptext #[p Non rispondo]
+                    -}
+                    - for (var i = 1; i <= 5; i++){ 
+                      div.tooltip
+                        input(type="radio" name="test" value=i) 
+                        |   #{i}   
+                        -if(i == 1){stringa = 'Completamente in disaccordo'}
+                        -if(i == 2){stringa = 'In disaccordo'}
+                        -if(i == 3){stringa = `Abbastamza d'accordo`}
+                        -if(i == 4){stringa = `D'accordo`}
+                        -if(i == 5){stringa = `Completamente d'accordo`} 
+                        span.tooltiptext #{stringa}
+                    -}  
       div.bodyBottone
         div.bottone-send   
           button(type="button"  onclick="sendTest()") #[h3 Invia il test]
