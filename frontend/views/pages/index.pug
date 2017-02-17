@@ -2,6 +2,24 @@ extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
 block content
+  script
+    function generateString(val){
+    if(val === 1){
+    return 'Completamente in disaccordo'
+    }
+    if(val === 2){
+    return 'In disaccordo'
+    }
+    if(val === 3){
+    return 'Abbastamza d'accordo'
+    }
+    if(val === 4){
+    return 'D'accordo'
+    }
+    if(val === 5){
+    return 'Completamente d'accordo'
+    }
+    };
   div.navbar
     ul 
       div.navbar-text 
