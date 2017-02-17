@@ -61,8 +61,8 @@ function sendTest() {
           domandaUnChecked.classList.add('missing');
         }
       }
-      var idUnique = 'id' + idDocente + idDomanda;
-      scrollZhou(idUnique, 10);
+      var idUnique = 'idDoc' + idDocente;
+      scrollZhou(idUnique,150);
       alert('Attenzione non hai risposto a tutte le domande!');
       return;
     }
@@ -88,7 +88,7 @@ function sendTest() {
       headers: {
         'Content-Type': 'application/json'
       },
-      url: 'http://192.168.0.12:4000/votazioni'
+      url: 'http://localhost:4000/votazioni'
     },
 
     function (code, responseText) {

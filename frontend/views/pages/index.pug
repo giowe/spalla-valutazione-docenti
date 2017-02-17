@@ -2,24 +2,31 @@ extends ../layout
 block head 
   link(rel="stylesheet" href="./static/main.css")
 block content
-  //todo navbar collapse
   div.navbar
     ul 
       div.navbar-text 
-        li.navbar-container-link 
-          a.navbar-link(class= "active" href="#home" onClick="navbarScroll(this)") HOME
+        li.navbar-container-link
+          a.navbar-link.static-navbar-link(href="#home" onClick="navbarScroll(this)" id = 'idNavhome') HOME
         each docente in docenti
           li.navbar-container-link
-            a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)" id = 'idNavidDoc'+docente.id) #{docente.nome} #{docente.cognome}
         li.navbar-container-link
-          a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
+          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="navbarScroll(this)" id = 'idNavidDocnull') DOMANDE GENERALI
+      div.navbar-info
+        h3 Ricorda:
+        p 1 = Completamente in disaccordo
+        p 2 = In disaccordo
+        p 3 = Abbastamza d'accordo
+        p 4 = D'accordo
+        p 5 = Completamente d'accordo
   div.body-page
     div.navbarCollapsed
       ul 
         div.dropdown
-          //.icono-hamburger
-          div.dropbtn#nav-toggle 
-            span
+          div.menu
+            div.dropbtn#nav-toggle 
+              span
+            h3.menu-text SEZIONI
           div.dropdown-content
             li.navbarC-container-link 
               a.navbar-link(href="#home" onClick="navbarScroll(this)") HOME
@@ -37,7 +44,7 @@ block content
             p.noText Questa possibilità di esprimere il giudizio di ognuno di voi in modo anonimo verso i professori è stato possibile solo con la realizzazione di questo sito, vi preghiamo quindi di rispondere con massima sincerità alle domande generali che trovate a fine pagina; 
             p.noText Ah ultima cosa, ma non meno importante, se volete che la vostra votazione venga registrata in modo corretto compilate ogni quesito, Grazie e buono sfogo!
             div.header-bottone
-              button(type="button" onClick="scrollZhou('docentiBodyDomande',2.5)") #[h3 Clicca per iniziare]
+              button(href='#idDoc'+docenti[0].id type="button" onClick="navbarScroll(this)") #[h3 Clicca per iniziare]
       div.body-domande 
         ul.body-docenti#docentiBodyDomande
           each docente in docenti
@@ -75,9 +82,9 @@ block content
       div.bodyBottone
         div.bottone-send   
           button(type="button"  onclick="sendTest()") #[h3 Invia il test]
-  footer
-    div.footerText
-      h2 Sito realizzato dai ragazzi della 5F 
+    footer
+      div.footerText
+        h2 Sito realizzato dai ragazzi della 5F 
 block scripts 
   script(src="./static/nanoajax.min.js")
   script(src="./static/scroll.js")
