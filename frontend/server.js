@@ -2,8 +2,8 @@
 const express = require('express');
 const app = new express();
 const request = require('request');
-const parallel = require('async').parallel; 
-  
+const parallel = require('async').parallel;
+
 const port = 8000;
 
 app.set('view engine', 'pug');
@@ -16,33 +16,43 @@ app.get('/', (req, res) => {
     (cb) => {
       request('http://localhost:4000/domande/1', (err, response, body) => {
         if (err) return cb(err);
-        try { cb(null, JSON.parse(body)); }
-        catch (err) { cb(err); }
+        try {
+          cb(null, JSON.parse(body));
+        } catch (err) {
+          cb(err);
+        }
       });
     },
-    
+
     //domande docenti
     (cb) => {
       request('http://localhost:4000/domande/0', (err, response, body) => {
         if (err) return cb(err);
-        try { cb(null, JSON.parse(body)); }
-        catch (err) { cb(err); }
+        try {
+          cb(null, JSON.parse(body));
+        } catch (err) {
+          cb(err);
+        }
       });
     },
-    
+
     //lista docenti
     (cb) => {
       request('http://localhost:4000/docenti/current', (err, response, body) => {
         if (err) return cb(err);
-        try { cb(null, JSON.parse(body)); }
-        catch (err) { cb(err); }
+        try {
+          cb(null, JSON.parse(body));
+        } catch (err) {
+          cb(err);
+        }
       });
     }
   ];
 
   parallel(asyncFunctions, (err, results) => {
-    if (err) return res.render('error', { err: err });
-    
+    if (err) return res.render('error', {
+      err: err
+    });
     res.render('index', {
       title: 'Home',
       domandeGenerali: results[0],
