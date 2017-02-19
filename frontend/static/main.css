@@ -18,7 +18,7 @@ body {
   padding: 0;
   display: none;
   z-index: 2;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 ::-webkit-scrollbar {
@@ -36,7 +36,7 @@ body {
 .navbarCollapsed .dropdown .dropdown-content {
   display: none;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   min-width: 200px;
   z-index: 1;
 }
@@ -350,7 +350,7 @@ footer .footerText {
     color: #fff;
     text-align: center;
     border-radius: 6px;
-    padding: 5px 0;
+    padding: 2px 0;
     
     /* Position the tooltip */
     position: absolute;
@@ -360,7 +360,7 @@ footer .footerText {
     margin-left: -70px;
     transition: opacity 0.8s;
     opacity: 0;
-    font-size: 12px;
+    font-size: 10px;
 }
 .tooltip .tooltiptext::after {
     content: "";

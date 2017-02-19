@@ -9,7 +9,7 @@ function debugRispondi(val) {
     inputs[val].checked = true;
   }
 }
-
+var send = false;
 function sendTest() {
   var dataToSend = {
     docenti: []
@@ -80,7 +80,10 @@ function sendTest() {
       voto: voto
     });
   }
-  //todo nel backend controllo object
+  if(send){
+    return;
+  }
+  send = true;
   console.log(dataToSend);
   nanoajax.ajax({
       method: 'POST',
