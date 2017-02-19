@@ -7,8 +7,6 @@ const uuid = require('uuid/v4');
 const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
 let idVotati = [];
-let domandeGeneraliDB = [];
-let domandeDocentiDB = [];
 let passString = "";
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 //console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
@@ -98,7 +96,6 @@ app.use('/votazioni', (req, res, next) => {
 });
 app.post('/votazioni', (req, res) => {
   const body = req.body; /*require('./fake-data.json');*/
-
   const studente = {
     id: uuid(),
     idClasse: sezioneCorrente
@@ -118,39 +115,9 @@ app.post('/votazioni', (req, res) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
       idVotati.push(req.ip);
-      console.log('Registrazione eseguita da parte di ', req.ip);
+      //console.log('Registrazione eseguita da parte di ', req.ip);
+      console.log(idVotati.length,' hanno finito di votare');
     });
-  });
-});
-app.get('/risultati/:idDocente', (req, res) => {
-  let idDocenteReq = parseInt(req.params.idDocente);
-  let copiaDomandeDB = [];
-  let asyncFunctions = [];
-  domandeDocentiDB.forEach(domanda => {
-    copiaDomandeDB.push(domanda);
-  })
-  copiaDomandeDB.forEach(domanda => {
-    asyncFunctions.push((cb) => {
-      const domandaId = copiaDomandeDB[0];
-      copiaDomandeDB.shift();
-      let query = "SELECT AVG(voto) , idDomanda FROM votazioni WHERE idDocente = ? AND idDomanda = ?";
-      query = mysql.format(query, [idDocenteReq, domandaId.id]);
-      console.log(query);
-      pool.query(query, (err, rows, fields) => {
-        if (err) return cb(err);
-        cb(null, rows);
-      });
-    });
-  });
-  parallel(asyncFunctions, (err, results) => {
-    if (err) return res.render('error', {
-      err: err
-    });
-    let risultati = [];
-    results.forEach(domanda => {
-      risultati.push(domanda);
-    });
-    return res.status(200).json(risultati);
   });
 });
 app.all('*', (req, res) => {
@@ -168,8 +135,7 @@ app.listen(port, () => {
   console.log('ATTENDERE BACKEND "backend pronto"');
 });
 generatePassString();
-getDomande();
-
+// funzione che ti genere una stringa composta da id(docente o generali) + i relativi id domande 
 function generatePassString() {
   let idDocentiCurrent = [];
   let idDomandeDocCurrent = [];
@@ -217,7 +183,8 @@ function generatePassString() {
     });
   });
 };
-
+// funzione per il controllo tra passString e la stringa generata partendo dai dati del body 
+// da come risposta true in caso positivo e false in caso negativo 
 function controlData(body) {
   let InDomGenId = [];
   let protoRNA = "";
@@ -243,26 +210,3 @@ function controlData(body) {
     return false;
   }
 };
-
-function getDomande() {
-  pool.query(`SELECT id , required , type FROM domande`, (err, rows, fields) => {
-    if (err) return res.status(500).json(err);
-    rows.forEach(domanda => {
-      const Dom = composeDomande(domanda.id, domanda.required, domanda.type);
-      if (domanda.type === 0) {
-        domandeDocentiDB.push(Dom);
-      } else {
-        domandeGeneraliDB.push(Dom);
-      }
-    });
-  });
-};
-
-function composeDomande(idDom, isRequired, typeDom) {
-  const domanda = {
-    id: idDom,
-    required: isRequired,
-    type: typeDom
-  }
-  return domanda;
-}
