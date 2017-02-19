@@ -32,15 +32,16 @@ function scrollZhou(eID, speed) {
       }
     }
 
-  }, 1);
+  }, 1
+  );
 }
 
 function navbarScroll(elem) {
   var docID = elem.getAttribute("href")
   docID = docID.substr(1);
-  scrollZhou(docID, 150);
+  scrollZhou(docID, 100);
+  return false;
 }
-//todo se ri riesce a usarlo si puo activare i link della navbar
 var userHasScrolled = false;
 var ArraySection = [];
 var ArraySectionLength;
@@ -79,7 +80,7 @@ function loopIsInViewport(){
     }
   }
 }
-function isInViewport(element) { //return true if is in viewport
+function isInViewport(element) {
   element = document.getElementById(element);
   var rect = element.getBoundingClientRect();
   var html = document.documentElement;
