@@ -82,6 +82,7 @@ app.use('/votazioni', (req, res, next) => {
   const ipStudente = req.ip;
   if (isInArray(ipStudente, idVotati)) {
     res.status(600).json("{}");
+    console.log(ipStudente, `ha tentato di rivotare`);
     return;
   };
   const body = req.body;
@@ -90,6 +91,7 @@ app.use('/votazioni', (req, res, next) => {
     next();
   } else {
     res.status(601).json("{}");
+    console.log(ipStudente, `ha tentato di cambiare L'HTML`);
     return;
   };
 
@@ -100,10 +102,10 @@ app.post('/votazioni', (req, res) => {
     id: uuid(),
     idClasse: sezioneCorrente
   };
+  const ipStudente = req.ip;
   const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
-      //todo sarebbe bello se si controllasse con il db per il required
       if (domanda.voto > 5) domanda.voto = 5;
       else if (domanda.voto < 1 && domanda.voto !== -1) domanda.voto = 1;
       votazioni.push([studente.id, docente.id, domanda.id, domanda.voto]);
@@ -114,9 +116,8 @@ app.post('/votazioni', (req, res) => {
     pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
-      idVotati.push(req.ip);
-      //console.log('Registrazione eseguita da parte di ', req.ip);
-      console.log(idVotati.length,' hanno finito di votare');
+      idVotati.push(ipStudente);
+      console.log(idVotati.length, 'hanno finito di votare');
     });
   });
 });
