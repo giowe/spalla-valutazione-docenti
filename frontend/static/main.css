@@ -18,12 +18,7 @@ body {
   padding: 0;
   display: none;
   z-index: 2;
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
+  background-color: rgba(0, 0, 0, 1);
 }
 
 .navbarCollapsed .dropdown .menu .menu-text {
@@ -36,14 +31,14 @@ body {
 .navbarCollapsed .dropdown .dropdown-content {
   display: none;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.8);
   min-width: 200px;
   z-index: 1;
 }
 
 .navbarCollapsed .dropdown-content a {
   margin: 0;
-  padding: 8px 16px;
+  padding: 4px 12px;
   display: block;
   text-decoration: none;
   color: white;
@@ -65,23 +60,27 @@ body {
 }
 
 .navbarCollapsed .dropdown-content .navbarC-container-link:hover {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .navbar ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  top: 0;
+  bottom: 0;
   padding-top: 5%;
   width: 20%;
   background-color: rgb(67, 68, 68);
   position: fixed;
   height: 100%;
   overflow: auto;
-  overflow-x: hidden;
   font-size: 12px;
 }
-
+.navbar ::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
 
 .navbar-container-link .navbar-link {
   display: block;
