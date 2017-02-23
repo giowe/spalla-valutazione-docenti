@@ -64,7 +64,7 @@ block content
                             |   #{i}   
                             -if(i == 1){stringa = 'Completamente in disaccordo'}
                             -if(i == 2){stringa = 'In disaccordo'}
-                            -if(i == 3){stringa = `Abbastamza d'accordo`}
+                            -if(i == 3){stringa = `Abbastanza d'accordo`}
                             -if(i == 4){stringa = `D'accordo`}
                             -if(i == 5){stringa = `Completamente d'accordo`} 
                             span.tooltiptext #{stringa}
@@ -78,10 +78,11 @@ block content
                   p.testo-domanda #{domanda.testo}
                   form.risposte-domanda(onclick="removeMissing(this)" idDocente=null idDomanda=domanda.id action="")
                     -if (!domanda.required){ 
+                          -stringa = 'Non rispondo'
                           div.tooltip
                             input(type="radio" name="test" value=-1 checked="checked")
                             |   NA   
-                            span.tooltiptext #[p Non rispondo]
+                            span.tooltiptext #{stringa}
                     -}
                     - for (var i = 1; i <= 5; i++){ 
                       div.tooltip
@@ -89,7 +90,7 @@ block content
                         |   #{i}   
                         -if(i == 1){stringa = 'Completamente in disaccordo'}
                         -if(i == 2){stringa = 'In disaccordo'}
-                        -if(i == 3){stringa = `Abbastamza d'accordo`}
+                        -if(i == 3){stringa = `Abbastanza d'accordo`}
                         -if(i == 4){stringa = `D'accordo`}
                         -if(i == 5){stringa = `Completamente d'accordo`} 
                         span.tooltiptext #{stringa}
