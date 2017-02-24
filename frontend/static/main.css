@@ -17,12 +17,8 @@ body {
   margin: 0;
   padding: 0;
   display: none;
-  background-color: rgba(0, 0, 0, 0.9);
-}
-
-::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 1);
 }
 
 .navbarCollapsed .dropdown .menu .menu-text {
@@ -35,14 +31,14 @@ body {
 .navbarCollapsed .dropdown .dropdown-content {
   display: none;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.8);
   min-width: 200px;
   z-index: 1;
 }
 
 .navbarCollapsed .dropdown-content a {
   margin: 0;
-  padding: 8px 16px;
+  padding: 4px 12px;
   display: block;
   text-decoration: none;
   color: white;
@@ -64,26 +60,27 @@ body {
 }
 
 .navbarCollapsed .dropdown-content .navbarC-container-link:hover {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .navbar ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  padding-top: 5%;
+  top: 0;
+  bottom: 0;
+  padding-top: 3%;
+  padding-bottom: 3%;
   width: 20%;
   background-color: rgb(67, 68, 68);
   position: fixed;
   height: 100%;
   overflow: auto;
-  overflow-x: hidden;
+  font-size: 12px;
 }
-
-.navbar .navbar-info {
-  color: white;
-  padding: 5%;
-  padding-bottom: 60px;
+.navbar ::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
 }
 
 .navbar-container-link .navbar-link {
@@ -340,4 +337,42 @@ footer .footerText {
     margin-left: 3% !important;
     margin-right: 3% !important;
   }
+}
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 140px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 4px 0;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 35%;
+    margin-left: -70px;
+    transition: opacity 0.8s;
+    opacity: 0;
+    font-size: 10px;
+}
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #555  transparent;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
 }

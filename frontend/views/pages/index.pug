@@ -6,19 +6,12 @@ block content
     ul 
       div.navbar-text 
         li.navbar-container-link
-          a.navbar-link.static-navbar-link(href="#home" onClick="navbarScroll(this)" id = 'idNavhome') HOME
+          a.navbar-link.static-navbar-link(href="#home" onClick="return navbarScroll(this)" id = 'idNavhome') HOME
         each docente in docenti
           li.navbar-container-link
-            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)" id = 'idNavidDoc'+docente.id) #{docente.nome} #{docente.cognome}
+            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="return navbarScroll(this)" id = 'idNavidDoc'+docente.id) #{docente.nome} #{docente.cognome}
         li.navbar-container-link
-          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="navbarScroll(this)" id = 'idNavidDocnull') DOMANDE GENERALI
-      div.navbar-info
-        h3 Ricorda:
-        p 1 = Completamente in disaccordo
-        p 2 = In disaccordo
-        p 3 = Abbastamza d'accordo
-        p 4 = D'accordo
-        p 5 = Completamente d'accordo
+          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="return navbarScroll(this)" id = 'idNavidDocnull') DOMANDE GENERALI
   div.body-page
     div.navbarCollapsed
       ul 
@@ -29,12 +22,12 @@ block content
             h3.menu-text SEZIONI
           div.dropdown-content
             li.navbarC-container-link 
-              a.navbar-link(href="#home" onClick="navbarScroll(this)") HOME
+              a.navbar-link(href="#home" onClick="return navbarScroll(this)") HOME
             each docente in docenti
               li.navbarC-container-link 
-                a.navbar-link(href='#idDoc'+docente.id onClick="navbarScroll(this)") #{docente.nome} #{docente.cognome}
+                a.navbar-link(href='#idDoc'+docente.id onClick="return navbarScroll(this)") #{docente.nome} #{docente.cognome}
             li.navbarC-container-link 
-              a.navbar-link(href="#idDocnull" onClick="navbarScroll(this)") DOMANDE GENERALI
+              a.navbar-link(href="#idDocnull" onClick="return navbarScroll(this)") DOMANDE GENERALI
     div.body-page-bg(style="background-image: url(./static/images/pi_greco.jpg);")
       div.header-container#home
         div.header-container-text
@@ -44,7 +37,7 @@ block content
             p.noText Questa possibilità di esprimere il giudizio di ognuno di voi in modo anonimo verso i professori è stato possibile solo con la realizzazione di questo sito, vi preghiamo quindi di rispondere con massima sincerità alle domande generali che trovate a fine pagina; 
             p.noText Ah ultima cosa, ma non meno importante, se volete che la vostra votazione venga registrata in modo corretto compilate ogni quesito, Grazie e buono sfogo!
             div.header-bottone
-              button(href='#idDoc'+docenti[0].id type="button" onClick="navbarScroll(this)") #[h3 Clicca per iniziare]
+              button(href='#idDoc'+docenti[0].id type="button" onClick="return navbarScroll(this)") #[h3 Clicca per iniziare]
       div.body-domande 
         ul.body-docenti#docentiBodyDomande
           each docente in docenti
@@ -57,13 +50,25 @@ block content
                     li.domanda
                       p.testo-domanda #{domanda.testo}
                       form.risposte-domanda(onclick="removeMissing(this)" idDocente=docente.id idDomanda=domanda.id action="")
-                        if (!domanda.required)
-                          input(type="radio" name="test" value=-1 checked="checked")
-                          |   NA   
-
-                        - for (var i = 1; i <= 5; i++)
-                          input(type="radio" name="test" value=i)
-                          |   #{i}   
+                        - var stringa = "";
+                        -if (!domanda.required){ 
+                          -stringa = 'Non rispondo'
+                          div.tooltip
+                            input(type="radio" name="test" value=-1 checked="checked")
+                            |   NA   
+                            span.tooltiptext #{stringa}
+                        -}
+                        - for (var i = 1; i <= 5; i++){ 
+                          div.tooltip
+                            input(type="radio" name="test" value=i) 
+                            |   #{i}   
+                            -if(i == 1){stringa = 'Completamente in disaccordo'}
+                            -if(i == 2){stringa = 'In disaccordo'}
+                            -if(i == 3){stringa = `Abbastanza d'accordo`}
+                            -if(i == 4){stringa = `D'accordo`}
+                            -if(i == 5){stringa = `Completamente d'accordo`} 
+                            span.tooltiptext #{stringa}
+                        -}
         ol.body-generali
           div.domande-generali(id='idDocnull')
             h1 Domande generali
@@ -72,13 +77,24 @@ block content
                 li.domanda 
                   p.testo-domanda #{domanda.testo}
                   form.risposte-domanda(onclick="removeMissing(this)" idDocente=null idDomanda=domanda.id action="")
-                    if (!domanda.required)
-                      input(type="radio" name="test" value=-1 checked="checked")
-                      |   NA   
-
-                    - for (var i = 1; i <= 5; i++)
-                      input(type="radio" name="test" value=i)
-                      |   #{i}  
+                    -if (!domanda.required){ 
+                          -stringa = 'Non rispondo'
+                          div.tooltip
+                            input(type="radio" name="test" value=-1 checked="checked")
+                            |   NA   
+                            span.tooltiptext #{stringa}
+                    -}
+                    - for (var i = 1; i <= 5; i++){ 
+                      div.tooltip
+                        input(type="radio" name="test" value=i) 
+                        |   #{i}   
+                        -if(i == 1){stringa = 'Completamente in disaccordo'}
+                        -if(i == 2){stringa = 'In disaccordo'}
+                        -if(i == 3){stringa = `Abbastanza d'accordo`}
+                        -if(i == 4){stringa = `D'accordo`}
+                        -if(i == 5){stringa = `Completamente d'accordo`} 
+                        span.tooltiptext #{stringa}
+                    -}  
       div.bodyBottone
         div.bottone-send   
           button(type="button"  onclick="sendTest()") #[h3 Invia il test]
