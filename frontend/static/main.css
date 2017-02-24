@@ -31,14 +31,14 @@ body {
 .navbarCollapsed .dropdown .dropdown-content {
   display: none;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.98);
   min-width: 200px;
   z-index: 1;
 }
 
 .navbarCollapsed .dropdown-content a {
   margin: 0;
-  padding: 4px 12px;
+  padding: 4px 16px;
   display: block;
   text-decoration: none;
   color: white;
@@ -60,7 +60,7 @@ body {
 }
 
 .navbarCollapsed .dropdown-content .navbarC-container-link:hover {
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgb(32, 35, 35);
 }
 
 .navbar ul {
@@ -72,7 +72,7 @@ body {
   padding-top: 3%;
   padding-bottom: 3%;
   width: 20%;
-  background-color: rgb(67, 68, 68);
+  background-color: rgba(0, 0, 0,0.9);
   position: fixed;
   height: 100%;
   overflow: auto;
@@ -118,7 +118,8 @@ body {
 .header-container {
   height: 100vh;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.88);
+  font-family: sans-serif;
 }
 
 .header-container .header-text {
@@ -152,11 +153,12 @@ body {
 
 .header-container .header-bottone button:hover {
   border-color: limegreen;
+  cursor: pointer;
   color: lime;
 }
 
 .body-domande {
-  background-color: rgba(155, 155, 155, 0.3);
+  background-color: rgba(155, 155, 155, 0.4);
 }
 
 .body-domande ul {
@@ -174,7 +176,7 @@ body {
   padding: 20px;
   margin-bottom: 20px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 0.25px solid #4a4b4c;
+  border: 1.5px solid rgba(155, 155, 155, 1);
 }
 
 .docente .nome-docente {
