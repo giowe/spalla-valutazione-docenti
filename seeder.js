@@ -55,11 +55,53 @@ async.parallel(fns, (err, results) => {
   const docenti = results[0];
   const domandeDocenti = results[1];
   const domandeGenerali = results[2];
-  
+  const totalReq = [];
   for (let studentIndex = 0; studentIndex < 18; studentIndex++) {
+  
     classi.forEach((classe) => {
+
+      const risposteDomandeGenerali = {
+        id: null,
+        domande: []
+      };
+
+      domandeGenerali.forEach(domanda => {
+        let voto = 0;
+        switch (domanda.id) {
+          case 13: //utile
+            voto = getVoto( 0, 5, 10, 35, 40, 10);
+            break;
+          case 14: //abba lab
+            voto = getVoto( 0, 20, 30, 35, 10, 5);
+            break;
+          case 15: //extra istituto
+            voto = getVoto( 0, 5, 10, 30, 30, 25);
+            break;
+          case 16: //lez priv
+            voto = getVoto( 0, 15, 5, 35, 25, 20);
+            break;
+          case 17: //soddisfatti o rimborsati
+            voto = getVoto( 0, 5, 5, 30, 40, 20);
+            break;
+          case 18: //recupero scuola
+            voto = getVoto( 20, 20, 25, 15, 15, 5);
+            break;
+          case 19: //bella cumpà
+            voto = getVoto( 0, 5, 10, 20, 40, 25);
+            break;
+          case 20: //belli monteore
+            voto = getVoto( 0, 15, 15, 20, 30, 20);
+            break;  
+        }
+        
+        risposteDomandeGenerali.domande.push({
+          id: domanda.id,
+          voto: voto
+        });
+      });
+      
       const out = {
-        docenti: []
+        docenti: [risposteDomandeGenerali]
       };
       
       docenti[classe.id].forEach(docente => {
@@ -115,9 +157,25 @@ async.parallel(fns, (err, results) => {
           })
         })
       });
-      console.log(out.docenti[0]);
+
+      totalReq.push(out);
     });
   }
+  
+  let index = 0;
+  const interval = setInterval(() => {
+    console.log('INVIO DATI STUDENTE', index, '/', totalReq.length-1);
+    
+    request({
+      url:'http://localhost:4000/votazioni',
+      method: 'POST',
+      json: totalReq[index]
+    });
+    
+    index++;
+    if (index === totalReq.length) clearInterval(interval);
+  }, 100);
+  //console.log(totalReq);
   //todo da qui dobbiamo comporre tutte le possibili risposte ai questionari e poi inviarle
 });
 

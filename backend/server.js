@@ -79,6 +79,8 @@ function isInArray(value, array) {
 }
 //middleWare contro hacking e doppia votazione 
 app.use('/votazioni', (req, res, next) => {
+  return next();
+  
   const ipStudente = req.ip;
   if (isInArray(ipStudente, idVotati)) {
     res.status(600).json("{}");
