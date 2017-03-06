@@ -33,7 +33,11 @@ app.options('*', (req, res) => {
 });
 const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
-    pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC`, (err, rows, fields) => {
+    const limit = req.query.limit;
+    const offset = req.query.offset;
+    
+    console.log(limit, offset);
+    pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
     })
@@ -43,8 +47,59 @@ const exposeList = (tableName, sorter) => {
 exposeList('classi', 'id');
 exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
-exposeList('votazioni', 'idDocente');
+//exposeList('votazioni', 'idDocente');
 exposeList('studenti', 'idClasse');
+
+app.get(`/votazioni`, (req, res) => {
+  const limit = req.query.limit;
+  const offset = req.query.offset;
+  let where = req.query.where;
+  let whereString = '';
+  if (where){
+    try {
+      where = JSON.parse(where);
+
+      whereString = [];
+      Object.keys(where).forEach(key => {
+        const value = where[key];
+        const type = typeof value;
+        if (type === 'object') {
+
+        } else {
+          const wrapperChar =type === 'string' ? '"' : '';
+          whereString.push(`\`${key}\` = ${wrapperChar+value+wrapperChar}`);
+        }
+      });
+      if (whereString.length) {
+        whereString = `WHERE ${whereString.join(' AND ')}`;
+      } else {
+        whereString = '';
+      }
+
+    } catch(err) {
+      console.log(err);
+      where = null;
+    }
+  }
+    
+  //console.log(whereString);
+  
+  pool.query(
+   `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
+   INNER JOIN studenti ON votazioni.idStudente = studenti.id
+   INNER JOIN docenti ON votazioni.idDocente = docenti.id 
+   ${whereString}
+   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, 
+    
+    (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    
+    res.json({
+      count: rows.length,
+      data: rows
+    });
+  })
+});
 
 
 app.get(`/domande/:type`, (req, res) => {
@@ -104,7 +159,7 @@ app.post('/votazioni', (req, res) => {
   const body = req.body; /*require('./fake-data.json');*/
   const studente = {
     id: uuid(),
-    idClasse: sezioneCorrente
+    idClasse: req.query.classe || sezioneCorrente
   };
   const ipStudente = req.ip;
   const votazioni = [];

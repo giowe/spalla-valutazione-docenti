@@ -101,6 +101,7 @@ async.parallel(fns, (err, results) => {
       });
       
       const out = {
+        classe,
         docenti: [risposteDomandeGenerali]
       };
       
@@ -164,12 +165,14 @@ async.parallel(fns, (err, results) => {
   
   let index = 0;
   const interval = setInterval(() => {
-    console.log('INVIO DATI STUDENTE', index, '/', totalReq.length-1);
-    
+    const classe = totalReq[index].classe.id;
+    console.log('INVIO DATI STUDENTE CLASSE', classe, index, '/', totalReq.length-1);
     request({
-      url:'http://localhost:4000/votazioni',
+      url:`http://localhost:4000/votazioni?classe=${classe}`,
       method: 'POST',
       json: totalReq[index]
+    }, (err, results, res) => {
+      if (err) console.log(err);
     });
     
     index++;
