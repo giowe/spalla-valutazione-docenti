@@ -8,6 +8,7 @@ const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
 let idVotati = [];
 let passString = "";
+let classi = [];
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 //console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
 const pool = mysql.createPool({
@@ -76,6 +77,13 @@ app.get('/docenti/:classe', (req, res) => {
 
 function isInArray(value, array) {
   return array.indexOf(value) > -1;
+}
+function removeElem(value, array){
+  for(var i in array){
+        if(array[i]==value){
+            array.splice(i,1);
+        }
+    }
 }
 //middleWare contro hacking e doppia votazione 
 app.use('/votazioni', (req, res, next) => {
@@ -210,4 +218,20 @@ function controlData(body) {
   } else {
     return false;
   }
+};
+getClassi(sezioneCorrente);
+function getClassi(lettereIniziali){
+  const classeCorrente = `${lettereIniziali}%`;
+  console.log(classeCorrente);
+  pool.query(`SELECT * FROM classi WHERE id LIKE '${classeCorrente}'`, (err, rows, fields) => {
+      if (err) return res.status(500).json(err);
+      rows.forEach(classe => {
+        const currClasse = {
+          id: classe.id,
+          label: classe.label
+        };
+        classi.push(currClasse);
+      });
+      console.log(classi);
+  })
 };
