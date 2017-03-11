@@ -18,7 +18,7 @@ body {
 .header-container {
   height: 100vh;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .header-container .header-text {
@@ -45,4 +45,40 @@ body {
 
 .header-text .testo3 {
   font-size: 30px;
+}
+.selezione{
+  color: rgba(255, 97, 0, 1);
+}
+.button-container{
+  text-align: center;
+  display: block;
+  padding: 0.5%;
+}
+.button-container button{
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.875);
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-transition-duration: 0.6s;
+  transition-duration: 0.6s;
+}
+.button-container .bottone p{
+  font-size: 14px;
+  margin: 0;
+  color: white;
+  font-family: Sans-serif;
+   width: 450px;
+  -webkit-transition-duration: 0.8s;
+  transition-duration: 0.8s;
+  padding: 2px 4px;
+}
+.button-container .bottone p:hover{
+  cursor: pointer;
+  font-size: 18px;
+  width: 480px;
+  padding: 8px 4px;
+  color: rgba(255, 97, 0, 1);
+}
+.button-container button:hover{
+  border-radius: 14px;  
+  border: 2px solid rgba(255, 97, 0, 1);
 }

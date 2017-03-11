@@ -84,7 +84,6 @@ function sendTest() {
     return;
   }
   send = true;
-  console.log(dataToSend);
   nanoajax.ajax({
       method: 'POST',
       body: JSON.stringify(dataToSend),

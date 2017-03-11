@@ -19,7 +19,7 @@ block content
           div.menu
             div.dropbtn#nav-toggle 
               span
-            h3.menu-text SEZIONI
+            h3.menu-text MENU
           div.dropdown-content
             li.navbarC-container-link 
               a.navbar-link(href="#home" onClick="return navbarScroll(this)") HOME
@@ -95,12 +95,12 @@ block content
                         -if(i == 5){stringa = `Completamente d'accordo`} 
                         span.tooltiptext #{stringa}
                     -}  
-      div.bodyBottone
-        div.bottone-send   
-          button(type="button"  onclick="sendTest()") #[h3 Invia il test]
+        div.bodyBottone
+         div.bottone-send   
+           button(type="button"  onclick="sendTest()") #[h3 Invia il test]
     footer
       div.footerText
-        h2 Sito realizzato dai ragazzi della 5F 
+        h2 Sito realizzato dai ragazzi della 5F Scientifica
 block scripts 
   script(src="./static/nanoajax.min.js")
   script(src="./static/scroll.js")

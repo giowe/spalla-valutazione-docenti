@@ -38,7 +38,8 @@ body {
 
 .navbarCollapsed .dropdown-content a {
   margin: 0;
-  padding: 4px 16px;
+  padding: 4px 4px;
+  font-size: 10px;
   display: block;
   text-decoration: none;
   color: white;
@@ -58,7 +59,15 @@ body {
 .navbarCollapsed .dropdown:hover .dropdown-content {
   display: block;
 }
-
+.navbarCollapsed .dropdown-content .navbarC-container-link a{
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+}
+.navbarCollapsed .dropdown-content .navbarC-container-link a:hover{
+  color: rgba(255, 97, 0, 1);
+  font-size: 15px;
+  padding: 8px 4px;
+}
 .navbarCollapsed .dropdown-content .navbarC-container-link:hover {
   background-color: rgb(32, 35, 35);
 }
@@ -69,15 +78,17 @@ body {
   padding: 0;
   top: 0;
   bottom: 0;
-  padding-top: 6%;
-  padding-bottom: 3%;
+  padding-top: 3%;
   width: 20%;
-  background-color: rgba(0, 0, 0,0.9);
+  background-color: rgba(0, 0, 0, 0.9);
   position: fixed;
   height: 100%;
   overflow: auto;
-  font-size: 12px;
+  font-size: 9px;
+  font-family: Sans-serif;
+  font-weight: bold;
 }
+
 .navbar ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
@@ -86,18 +97,22 @@ body {
 .navbar-container-link .navbar-link {
   display: block;
   color: white;
-  padding: 8px 16px;
+  padding: 5px 8px;
   text-decoration: none;
+  -webkit-transition-duration: 0.6s;
+  transition-duration: 0.6s;
 }
-
 .navbar-container-link a.active {
-  background-color: #4CAF50;
-  color: white;
+  background-color: rgb(230, 107, 19);;
+  color: black;
+  font-size: 13px;
+  padding: 4px 8px;
 }
-
 .navbar-container-link a:hover:not(.active) {
   background-color: rgba(0, 0, 0, 0.8);
-  color: white;
+  color: rgba(255, 97, 0, 1);
+  font-size: 12px;
+  padding: 10px 8px;
 }
 
 .missing {
@@ -234,21 +249,16 @@ ol h1 {
 
 .domanda .risposte-domanda {}
 
-.body-page .bodyBottone {
-  background-color: rgba(155, 155, 155, 0.3);
-}
-
 .bottone-send {
-  padding-top: 40px;
   text-align: center;
 }
 
 .bottone-send button {
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 5px solid #555555;
-  margin-bottom: 40px;
-  width: 30%;
+  border: 4px solid rgba(0, 0, 0, 0.7);
+  margin-bottom: 20px;
+  width: 25%;
   font-size: 16px;
   color: #555555;
   -webkit-transition-duration: 0.4s;
@@ -258,6 +268,7 @@ ol h1 {
 .bottone-send button:hover {
   background-color: rgba(11, 168, 30, 0.9);
   border-color: #004c0c;
+  cursor: pointer;
   color: white;
 }
 
@@ -265,8 +276,8 @@ footer {
   position: relative;
   bottom: 0;
   color: #4CAF50;
-  background: #5f5f5f;
-  height: 100px;
+  background: rgb(37, 37, 37);
+  height: 70px;
 }
 
 footer .footerText {
@@ -316,6 +327,30 @@ footer .footerText {
   }
 }
 
+@media (max-height:350px) {
+  .navbar {
+    display: none;
+  }
+  .navbarCollapsed ul {
+    display: inline-block;
+  }
+  .body-page {
+    margin-left: 0%;
+  }
+  .body-page .body-page-bg {
+    background-position: center center;
+  }
+  .body-page-bg .header-container .header-container-text .header-text {
+    margin-left: 0;
+    margin-right: 0;
+    left: 0;
+    right: 0;
+  }
+  .body-page-bg .header-container .header-container-text .header-text .noText {
+    display: none;
+  }
+}
+
 @media (max-width:767px) {
   .navbar {
     display: none;
@@ -340,41 +375,43 @@ footer .footerText {
     margin-right: 3% !important;
   }
 }
+
 .tooltip {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 140px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 4px 0;
-    
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-    top: 100%;
-    left: 35%;
-    margin-left: -70px;
-    transition: opacity 0.8s;
-    opacity: 0;
-    font-size: 10px;
+  visibility: hidden;
+  width: 140px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 0;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 35%;
+  margin-left: -70px;
+  transition: opacity 0.8s;
+  opacity: 0;
+  font-size: 10px;
 }
+
 .tooltip .tooltiptext::after {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #555  transparent;
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #555 transparent;
 }
+
 .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
