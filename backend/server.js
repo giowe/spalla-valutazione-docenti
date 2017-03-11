@@ -6,11 +6,12 @@ const config = require('./config.json');
 const uuid = require('uuid/v4');
 const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
-let idVotati = [];
-let passString = "";
-let classi = [];
+let ipUsati = [];
+let ipRegistrati = [];
+let classiCreate = [];
+let classiInfo = [];
+let ipPcWithClass = [];
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
-//console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: "rds.soluzionifutura.it",
@@ -58,10 +59,22 @@ app.get(`/domande/:type`, (req, res) => {
     res.json(rows);
   })
 });
-app.get('/docenti/:classe', (req, res) => {
-  let classe = req.params.classe;
-  if (classe === 'current') classe = sezioneCorrente;
-
+app.get('/docenti/:ipPc', (req, res) => {
+  let classeIpPc = "";
+  const ipPc = req.params.ipPc;
+  if (isInArray(ipPc, ipUsati)) {
+    res.status(600).json("{}"); //gia votato
+    return;
+  };
+  if(!isInArray(ipPc,ipRegistrati)){
+    res.status(202).json("{}"); //gia votato
+    return;
+  }
+  ipPcWithClass.forEach(pc => {
+    if (pc.ipPc == ipPc)
+      classeIpPc = pc.idClasse;
+  });
+  if (classeIpPc == "") return;
   const query = [
     'SELECT d.id, d.nome, d.cognome, d.materia FROM docenti d',
     'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
@@ -69,37 +82,76 @@ app.get('/docenti/:classe', (req, res) => {
     'WHERE c.id = ?'
   ].join(' ');
 
-  pool.query(query, [classe], (err, rows, fields) => {
+  pool.query(query, [classeIpPc], (err, rows, fields) => {
     if (err) return res.status(500).json(err);
     res.json(rows);
   })
 });
+app.get('/classi/current/:ipPc', (req, res) => {
+  const ipPc = req.params.ipPc;
+  if (isInArray(ipPc, ipUsati)) {
+    res.status(600).json("{}"); //gia votato
+    return;
+  }else if (isInArray(ipPc, ipRegistrati)) {
+    res.status(201).json("{}"); //ok 
+    return;
+  }else{
+    res.status(200).json(classiInfo);
+    return;
+  };
+})
 
 function isInArray(value, array) {
   return array.indexOf(value) > -1;
 }
-function removeElem(value, array){
-  for(var i in array){
-        if(array[i]==value){
-            array.splice(i,1);
-        }
+
+function removeElem(value, array) {
+  for (var i in array) {
+    if (array[i] == value) {
+      array.splice(i, 1);
     }
+  }
 }
+app.post('/sceltaClasse', (req, res) => {
+  const ipPc = req.ip;
+  const idClasseScelto = req.body.idClasseScelto;
+  if (isInArray(ipPc, ipUsati)) {
+    res.status(600).json("{}"); //gia votato
+    return;
+  };
+  if (isInArray(ipPc, ipRegistrati)) {
+    res.status(200).json("{}"); //ok 
+    return;
+  };
+  if(!isInArray(idClasseScelto,classiCreate)){
+    res.status(601).json("{}");
+    return;
+  }else{
+    const pcStudente = {
+      idClasse: idClasseScelto,
+      ipPc: ipPc
+    };
+    ipPcWithClass.push(pcStudente);
+    ipRegistrati.push(ipPc);
+    res.status(200).json("{}");
+    return;
+  };
+})
 //middleWare contro hacking e doppia votazione 
 app.use('/votazioni', (req, res, next) => {
   const ipStudente = req.ip;
-  if (isInArray(ipStudente, idVotati)) {
+  if (isInArray(ipStudente, ipUsati)) {
     res.status(600).json("{}");
     console.log(ipStudente, `ha tentato di rivotare`);
     return;
   };
   const body = req.body;
-  let Compatibilita = controlData(body);
+  let Compatibilita = controlData(body, ipStudente);
   if (Compatibilita) {
     next();
   } else {
     res.status(601).json("{}");
-    console.log(ipStudente, `ha tentato di cambiare L'HTML`);
+    console.log(ipStudente, `si sta divertendo a cambiare L'HTML`);
     return;
   };
 
@@ -124,8 +176,8 @@ app.post('/votazioni', (req, res) => {
     pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
-      idVotati.push(ipStudente);
-      console.log(idVotati.length, 'hanno finito di votare');
+      ipUsati.push(ipStudente);
+      console.log(ipUsati.length, 'studenti hanno finito di votare');
     });
   });
 });
@@ -140,63 +192,92 @@ app.all('*', (req, res) => {
 });
 
 app.listen(port, () => {
-  //console.log(`backend listening on port ${port}`);
-  console.log('ATTENDERE BACKEND "backend pronto"');
+  console.log(`ATTENDERE L'AVVISO DEL COMPLETAMENTO GENERAZIONE CLASSI`);
 });
-generatePassString();
-// funzione che ti genere una stringa composta da id(docente o generali) + i relativi id domande 
-function generatePassString() {
-  let idDocentiCurrent = [];
-  let idDomandeDocCurrent = [];
-  let idDomandeGenCurrent = [];
-  const query = [
-    'SELECT d.id FROM docenti d',
-    'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
-    'INNER JOIN classi c ON cd.idClasse = c.id',
-    'WHERE c.id = ?'
-  ].join(' ');
+generatePassStringAndClass(sezioneCorrente);
 
-  pool.query(query, [sezioneCorrente], (err, rows, fields) => {
-    if (err) return console.log('Errore creazione passString fase GetidDocenti');
-    rows.forEach(docente => {
-      idDocentiCurrent.push(docente.id);
-    });
-    let params = {
-      type: '0'
-    };
-    pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-      if (err) return console.log('Errore creazione passString fase GetDomandeDocenti');
-      rows.forEach(domanda => {
-        idDomandeDocCurrent.push(domanda.id);
-      });
-      params = {
-        type: '1'
+function generatePassStringAndClass(sezioneIniziali) {
+  //GET classi 
+  let classi = [];
+  let classiLength;
+  let contatoreClassi = 0;
+  const classeCorrente = `${sezioneIniziali}%`;
+  pool.query(`SELECT * FROM classi WHERE id LIKE '${classeCorrente}'`, (err, rows, fields) => {
+    if (err) return res.status(500).json(err);
+    rows.forEach(classe => {
+      const currClasse = {
+        id: classe.id,
+        label: classe.label,
+        passString: ""
       };
-      pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-        if (err) return console.log('Errore creazione passString fase GetDomandeGenerali');
-        rows.forEach(domanda => {
-          idDomandeGenCurrent.push(domanda.id);
+      classi.push(currClasse);
+      classiCreate.push(classe.id);
+    });
+    classiLength = classi.length;
+    classi.forEach(classe => {
+      // Creazione passString
+      let idDocentiCurrent = [];
+      let idDomandeDocCurrent = [];
+      let idDomandeGenCurrent = [];
+      const query = [
+        'SELECT d.id FROM docenti d',
+        'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
+        'INNER JOIN classi c ON cd.idClasse = c.id',
+        'WHERE c.id = ?'
+      ].join(' ');
+
+      pool.query(query, [classe.id], (err, rows, fields) => {
+        if (err) return console.log('Errore creazione passString fase GetidDocenti, RIAVVIARE IL SERVER');
+        rows.forEach(docente => {
+          idDocentiCurrent.push(docente.id);
         });
-        idDocentiCurrent.forEach(docente => {
-          passString = passString + docente;
-          idDomandeDocCurrent.forEach(domanda => {
-            passString = passString + domanda;
+        let params = {
+          type: '0'
+        };
+        pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
+          if (err) return console.log('Errore creazione passString fase GetDomandeDocenti, RIAVVIARE IL SERVER');
+          rows.forEach(domanda => {
+            idDomandeDocCurrent.push(domanda.id);
+          });
+          params = {
+            type: '1'
+          };
+          pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
+            if (err) return console.log('Errore creazione passString fase GetDomandeGenerali, RIAVVIARE IL SERVER');
+            rows.forEach(domanda => {
+              idDomandeGenCurrent.push(domanda.id);
+            });
+            let passString = "";
+            idDocentiCurrent.forEach(docente => {
+              passString = passString + docente;
+              idDomandeDocCurrent.forEach(domanda => {
+                passString = passString + domanda;
+              });
+            });
+            passString = passString + null;
+            idDomandeGenCurrent.forEach(domanda => {
+              passString = passString + domanda;
+            });
+            classe.passString = passString;
+            classiInfo.push(classe);
+            contatoreClassi++;
+            if(contatoreClassi === classiLength){
+              console.log('Classi create : '+classiCreate);
+              console.log('Fine creazione classi');
+            };
           });
         });
-        passString = passString + null;
-        idDomandeGenCurrent.forEach(domanda => {
-          passString = passString + domanda;
-        });
-        console.log('backend pronto');
       });
     });
   });
 };
 // funzione per il controllo tra passString e la stringa generata partendo dai dati del body 
 // da come risposta true in caso positivo e false in caso negativo 
-function controlData(body) {
+function controlData(body, ipPc) {
   let InDomGenId = [];
   let protoRNA = "";
+  let classeIpPc;
+  let passString;
   body.docenti.forEach(docente => {
     if (docente.id !== null) {
       protoRNA = protoRNA + docente.id;
@@ -213,25 +294,41 @@ function controlData(body) {
   InDomGenId.forEach(domanda => {
     protoRNA = protoRNA + domanda;
   });
+  ipPcWithClass.forEach(pc => {
+    if (pc.ipPc == ipPc)
+      classeIpPc = pc.idClasse;
+  });
+  classiInfo.forEach(classe => {
+    if (classe.id == classeIpPc) {
+      passString = classe.passString;
+    }
+  })
+
   if (passString === protoRNA) {
     return true;
   } else {
     return false;
   }
 };
-getClassi(sezioneCorrente);
-function getClassi(lettereIniziali){
-  const classeCorrente = `${lettereIniziali}%`;
-  console.log(classeCorrente);
-  pool.query(`SELECT * FROM classi WHERE id LIKE '${classeCorrente}'`, (err, rows, fields) => {
-      if (err) return res.status(500).json(err);
-      rows.forEach(classe => {
-        const currClasse = {
-          id: classe.id,
-          label: classe.label
-        };
-        classi.push(currClasse);
-      });
-      console.log(classi);
-  })
+
+function addPcStudente(ip, id) {
+  if (isInArray(ip, ipUsati)) {
+    return 600; //gia votato
+  };
+  ipPcWithClass.forEach(studente => {
+    if (studente.ipPc == ip && studente.idClasse == id) {
+      return 200; //ok next()
+    }
+  });
+  console.log(classiInfo);
+  classiInfo.forEach(classe => {
+    if (classe.id == id) {
+      const pcStudente = {
+        idClasse: id,
+        ipPc: ip
+      }
+      ipPcWithClass.push(pcStudente);
+      return 200;
+    };
+  });
 };
