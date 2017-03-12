@@ -9,6 +9,7 @@ const port = 8000;
 app.set('view engine', 'pug');
 app.set('views', './views/pages');
 app.use('/static', express.static('./static'));
+app.use('/views', express.static('./views'));
 app.get('/', (req, res) => {
   request(`http://localhost:4000/classi/current/${req.ip}`, (err, response, body) => {
     if (err) return err;
@@ -20,9 +21,6 @@ app.get('/', (req, res) => {
           classi: JSON.parse(body)
         });
       };
-      if (statusCode == 201) {
-        res.redirect('/questionario');
-      };
       if (statusCode == 600) {
         res.redirect('/votato');
       }
@@ -33,6 +31,7 @@ app.get('/', (req, res) => {
 })
 app.get('/questionario', (req, res) => {
   const ipPc = req.ip;
+  const idClasse = req.query.idClasse;
   let statusCode;
   const asyncFunctions = [
     //domande generali
@@ -61,7 +60,7 @@ app.get('/questionario', (req, res) => {
 
     //lista docenti
     (cb) => {
-      request(`http://localhost:4000/docenti/${ipPc}`, (err, response, body) => {
+      request(`http://localhost:4000/docenti/${idClasse}?ipPc=${ipPc}`, (err, response, body) => {
         if (err) return cb(err);
         statusCode = response.statusCode;
         try {
@@ -86,7 +85,8 @@ app.get('/questionario', (req, res) => {
         title: 'Questionario',
         domandeGenerali: results[0],
         domandeDocenti: results[1],
-        docenti: results[2]
+        docenti: results[2],
+        classe: idClasse
       });
     };
   });
