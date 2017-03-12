@@ -7,28 +7,17 @@ function sendTest(elem, cb) {
     return;
   }
   send = true;
-  dataToSend = {
-      idClasseScelto : idClasse
-  }
   nanoajax.ajax({
-      method: 'POST',
-      body: JSON.stringify(dataToSend),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      url: `http://localhost:4000/sceltaClasse`
-    },
-
-    function (code, responseText) {
-      console.log(code);
-      if (code === 200) {
-        window.location.pathname = '/questionario';
-      };
-      if (code === 600) {
-        window.location.pathname = '/votato';
-      };
-      if (code === 601) {
-        window.location.pathname = '/hack';
-      };
-    });
+    url: `http://192.168.0.12:4000/sceltaClasse?idClasse=${idClasse}`
+  }, function (code, responseText) {
+    if (code === 200) {
+      window.location.href = `/questionario?idClasse=${idClasse}`;
+    };
+    if (code === 600) {
+      window.location.pathname = '/votato';
+    };
+    if (code === 601) {
+      window.location.pathname = '/hack';
+    };
+  });
 };
