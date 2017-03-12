@@ -1,3 +1,4 @@
+const theIpOfServer ='192.168.0.12';
 function debugRispondi(val) {
   if (typeof val === 'undefined') val = 4;
 
@@ -62,7 +63,7 @@ function sendTest() {
         }
       }
       var idUnique = 'idDoc' + idDocente;
-      scrollZhou(idUnique,150);
+      scrollZhou(idUnique, 150);
       alert('Attenzione non hai risposto a tutte le domande!');
       return;
     }
@@ -80,22 +81,21 @@ function sendTest() {
       voto: voto
     });
   }
-  if(send){
+  if (send) {
     return;
   }
   send = true;
-  console.log(dataToSend);
+  const idClasse = sessionStorage.idClasse;
   nanoajax.ajax({
       method: 'POST',
       body: JSON.stringify(dataToSend),
       headers: {
         'Content-Type': 'application/json'
       },
-      url: 'http://localhost:4000/votazioni'
+      url: `http://${theIpOfServer}:4000/votazioni?idClasse=${idClasse}`
     },
 
     function (code, responseText) {
-      console.log(code);
       if (code === 200) {
         window.location.pathname = '/success';
       };
@@ -104,6 +104,9 @@ function sendTest() {
       };
       if (code === 601) {
         window.location.pathname = '/hack';
+      };
+      if (code === 202) {
+        window.location.pathname = '/';
       };
     });
 };
