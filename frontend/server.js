@@ -119,7 +119,7 @@ app.all('*', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`FRONTEND listening on port ${port}`);
+  console.log(` FRONTEND listening on port ${port}`);
 });
 // imposto automaticamente ip server per client 
 function setIpServer() {
@@ -133,5 +133,6 @@ function setIpServer() {
       ipServer = iface.address;
     });
   });
+  console.log(`\n CONTROLLA se l'ip del server è :  ${ipServer} \n SOLO controllare perchè viene IMPOSTATO AUTOMATICAMENTE\n`);
   return ipServer;
 }

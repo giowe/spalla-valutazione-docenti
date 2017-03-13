@@ -163,28 +163,18 @@ app.post('/votazioni', (req, res) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
       ipUsati.push(ipStudente);
-      console.log();
-      console.log();
-      console.log();
-      console.log();
+      console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
       console.log('-----------------AGGIORNAMENTO STATUS VOTAZIONE-----------------');
-      console.log();
       for (let i = 0; i < classiInfo.length; i++) {
         if (classiInfo[i].id == classeStudente) {
           classiInfo[i].nStudenti++;
-          console.log(` +1 Voto per la ${classiInfo[i].label}`);
-          console.log();
-          console.log();
+          console.log(`\n +1 Voto per la ${classiInfo[i].label}\n\n`);
         };
       }
       classiInfo.forEach(classe => {
         console.log(` N° Voti per la ${classe.label}  : ${classe.nStudenti}`);
       });
-      console.log();
-      console.log();
-      console.log(' TOTALE STUDENTI CHE HANNO FINITO DI VOTARE : '+ipUsati.length);
-      console.log();
-      console.log();
+      console.log('\n\n TOTALE STUDENTI CHE HANNO FINITO DI VOTARE : '+ipUsati.length+'\n\n');
       console.log('--------------FINE AGGIORNAMENTO STATUS VOTAZIONE---------------');
     });
   });
