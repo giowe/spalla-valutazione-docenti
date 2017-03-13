@@ -9,7 +9,6 @@ const sezioneCorrente = process.argv[2];
 let ipUsati = [];
 let classiCreate = [];
 let classiInfo = []; // array che contiene le varie stringhe di controllo 
-let antiDos =[];
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -64,16 +63,10 @@ app.get(`/domande/:type`, (req, res) => {
 app.get('/docenti/:idClasse', (req, res) => {
   const idClasse = req.params.idClasse;
   const ipPc = req.query.ipPc;
-  if(isInArray(ipPc,antiDos)){
-    return;
-  };
-  antiDos.push(ipPc);
   if (isInArray(ipPc, ipUsati)) {
-    antiDos.removeElem(ipPc,antiDos);
     res.status(600).json("{}");//gia votato
     return;
   } else if (!isInArray(idClasse, classiCreate)) {
-    antiDos.removeElem(ipPc,antiDos);
     res.status(202).json("{}");
     return;
   } else {
@@ -85,7 +78,6 @@ app.get('/docenti/:idClasse', (req, res) => {
     ].join(' ');
     pool.query(query, [idClasse], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
-      antiDos.removeElem(ipPc,antiDos);
       res.status(200).json(rows);
       return;
     });
@@ -94,17 +86,11 @@ app.get('/docenti/:idClasse', (req, res) => {
 //GET CLASSI CREATE 
 app.get('/classi/current/:ipPc', (req, res) => {
   const ipPc = req.params.ipPc;
-  if(isInArray(ipPc,antiDos)){
-    return;
-  }
-  antiDos.push(ipPc);
   if (isInArray(ipPc, ipUsati)) {
     res.status(600).json("{}"); //gia votato
-    antiDos.removeElem(ipPc,antiDos);
     return;
   } else {
     res.status(200).json(classiInfo);
-    antiDos.removeElem(ipPc,antiDos);
     return;
   };
 })
@@ -123,21 +109,14 @@ function removeElem(value, array) {
 //API CHE CONTROLLA LO STATUS DELL'IP E SE TUTTO "OK" ASSEGNA IP PC ALLA CLASSE SCELTA
 app.get('/sceltaClasse', (req, res) => {
   const ipPc = req.ip;
-  if(isInArray(ipPc,antiDos)){
-    return;
-  }
-  antiDos.push(ipPc);
   const idClasseScelto = req.query.idClasse;
   if (isInArray(ipPc, ipUsati)) {
-    antiDos.removeElem(ipPc,antiDos);
     res.status(600).json("{}"); //gia votato
     return;
   } else if (!isInArray(idClasseScelto, classiCreate)) {
-    antiDos.removeElem(ipPc,antiDos);
     res.status(601).json("{}"); //HTML cambiato 
     return;
   } else {
-    antiDos.removeElem(ipPc,antiDos);
     res.status(200).json("{}"); //ok next()
     return;
   };
@@ -145,23 +124,16 @@ app.get('/sceltaClasse', (req, res) => {
 //MIDDLEWARE DELLA CHIAMATA /VOTAZIONI (CONTROLLO STATUS IP PC)
 app.use('/votazioni', (req, res, next) => {
   const ipStudente = req.ip;
-  if(isInArray(ipStudente,antiDos)){
-    return;
-  }
-  antiDos.push(ipStudente);
   const idClasse = req.query.idClasse;
   if (isInArray(ipStudente, ipUsati)) {
-    antiDos.removeElem(ipStudente,antiDos);
     res.status(600).json("{}");
     return;
   } else {
     const body = req.body;
     let Compatibilita = controlData(body, idClasse);
     if (Compatibilita) {
-      antiDos.removeElem(ipStudente,antiDos);
       next();
     } else {
-      antiDos.removeElem(ipStudente,antiDos);
       res.status(601).json("{}");
       return;
     };
