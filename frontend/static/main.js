@@ -1,4 +1,3 @@
-const theIpOfServer ='192.168.1.179';
 function debugRispondi(val) {
   if (typeof val === 'undefined') val = 4;
 
@@ -92,7 +91,7 @@ function sendTest() {
       headers: {
         'Content-Type': 'application/json'
       },
-      url: `http://${theIpOfServer}:4000/votazioni?idClasse=${idClasse}`
+      url: `http://${sessionStorage.ServerIp}:4000/votazioni?idClasse=${idClasse}`
     },
 
     function (code, responseText) {

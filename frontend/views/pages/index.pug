@@ -106,6 +106,7 @@ block scripts
   script.
       if (typeof (Storage) !== "undefined") {
         sessionStorage.setItem('idClasse','#{classe}');
+        sessionStorage.setItem('ServerIp','#{ServerIp}');
       };
   script(src="./static/nanoajax.min.js")
   script(src="./static/scroll.js")

@@ -11,5 +11,9 @@ block content
             button.bottone(href='#'+classe.id type="button" onClick="sendTest(this)") 
               p #{classe.label}
 block scripts 
+    script.
+      if (typeof (Storage) !== "undefined") {
+        sessionStorage.setItem('ServerIp','#{ServerIp}');
+      };
     script(src="./static/sceltaClasse.js")
     script(src="./static/nanoajax.min.js")

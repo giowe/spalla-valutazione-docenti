@@ -1,4 +1,3 @@
-const theIpOfServer ='192.168.1.179';
 var send = false;
 function sendTest(elem, cb) {
   var idClasse = elem.getAttribute("href");
@@ -8,7 +7,7 @@ function sendTest(elem, cb) {
   }
   send = true;
   nanoajax.ajax({
-    url: `http://${theIpOfServer}:4000/sceltaClasse?idClasse=${idClasse}`
+    url: `http://${sessionStorage.ServerIp}:4000/sceltaClasse?idClasse=${idClasse}`
   }, function (code, responseText) {
     if (code === 200) {
       window.location.href = `/questionario?idClasse=${idClasse}`;

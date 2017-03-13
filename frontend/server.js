@@ -3,7 +3,8 @@ const express = require('express');
 const app = new express();
 const request = require('request');
 const parallel = require('async').parallel;
-
+const os = require('os');
+const ipServer = setIpServer();
 const port = 8000;
 
 app.set('view engine', 'pug');
@@ -18,7 +19,8 @@ app.get('/', (req, res) => {
       if (statusCode == 200) {
         res.render('sceltaClasse', {
           title: 'Home',
-          classi: JSON.parse(body)
+          classi: JSON.parse(body),
+          ServerIp: ipServer
         });
       };
       if (statusCode == 600) {
@@ -86,7 +88,8 @@ app.get('/questionario', (req, res) => {
         domandeGenerali: results[0],
         domandeDocenti: results[1],
         docenti: results[2],
-        classe: idClasse
+        classe: idClasse,
+        ServerIp: ipServer
       });
     };
   });
@@ -118,3 +121,17 @@ app.all('*', (req, res) => {
 app.listen(port, () => {
   console.log(`FRONTEND listening on port ${port}`);
 });
+// imposto automaticamente ip server per client 
+function setIpServer() {
+  const ifaces = os.networkInterfaces();
+  let ipServer;
+  Object.keys(ifaces).forEach(function (ifname) {
+    ifaces[ifname].forEach(function (iface) {
+      if ('IPv4' !== iface.family || iface.internal !== false) {
+        return;
+      }
+      ipServer = iface.address;
+    });
+  });
+  return ipServer;
+}
