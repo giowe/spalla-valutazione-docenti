@@ -1,4 +1,4 @@
-const theIpOfServer ='192.168.0.12';
+const theIpOfServer ='192.168.1.179';
 var send = false;
 function sendTest(elem, cb) {
   var idClasse = elem.getAttribute("href");

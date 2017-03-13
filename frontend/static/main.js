@@ -1,4 +1,4 @@
-const theIpOfServer ='192.168.0.12';
+const theIpOfServer ='192.168.1.179';
 function debugRispondi(val) {
   if (typeof val === 'undefined') val = 4;
 

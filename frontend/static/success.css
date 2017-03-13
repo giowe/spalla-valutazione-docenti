@@ -66,11 +66,11 @@ body {
 }
 
 .button-container .bottone p {
-  font-size: 14px;
+  font-size: 18px;
   margin: 0;
   color: white;
   font-family: Sans-serif;
-  width: 450px;
+  width: 500px;
   -webkit-transition-duration: 0.6s;
   transition-duration: 0.6s;
   padding: 2px 4px;
@@ -78,9 +78,9 @@ body {
 
 .button-container .bottone p:hover {
   cursor: pointer;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  width: 500px;
+  width: 550px;
   padding: 8px 4px;
   color: rgba(255, 97, 0, 1);
 }
