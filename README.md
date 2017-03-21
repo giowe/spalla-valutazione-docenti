@@ -1,4 +1,7 @@
 # spalla-valutazione-docenti
 ### Progetto di informatica anno 2016/17
-Questo sito è stato realizzato per risparmiare fogli e tempo, se no sarebbero stati usati piu di 10.000 fogli 
-per questo questionario, inoltre ci sarebbero voluti settimane prima di avere i dati elaborati.
+#### Questo sito permette:
+- di dare un giudizio anonimo ai propri professori
+- risparmiare fogli, circa 10.000 fogli in tutto ogni anno da quest'anno
+- avere un resoconto delle votazioni in tempo reale, tramite la web application 
+### Sito realizzato dai ragazzi 5F scientifico insieme a Giovanni Bruno
