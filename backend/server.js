@@ -130,7 +130,7 @@ app.use('/votazioni', (req, res, next) => {
     return;
   } else {
     const body = req.body;
-    let Compatibilita = controlData(body, idClasse);
+    let Compatibilita = checkData(body, idClasse);
     if (Compatibilita) {
       next();
     } else {
@@ -163,6 +163,7 @@ app.post('/votazioni', (req, res) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
       ipUsati.push(ipStudente);
+      // si lo so è una porcata (^_^)
       console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
       console.log('-----------------AGGIORNAMENTO STATUS VOTAZIONE-----------------');
       for (let i = 0; i < classiInfo.length; i++) {
@@ -285,7 +286,7 @@ function generatePassStringAndClass(sezioneIniziali) {
 };
 // funzione per il controllo tra passString e la stringa generata partendo dai dati del body 
 // da come risposta true in caso positivo e false in caso negativo 
-function controlData(body, classe) {
+function checkData(body, classe) {
   let InDomGenId = [];
   let passStringBody = "";
   const idClasse = classe;
