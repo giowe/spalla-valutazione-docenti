@@ -31,12 +31,12 @@ app.use((req, res, next) => {
 app.options('*', (req, res) => {
   res.sendStatus(200);
 });
+
 const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
     const limit = req.query.limit;
     const offset = req.query.offset;
     
-    console.log(limit, offset);
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
