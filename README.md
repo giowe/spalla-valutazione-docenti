@@ -1,6 +1,6 @@
 # spalla-valutazione-docenti
 
-### Progetto di informatica anno 2016/17
+### Progetto di informatica anno scolastico 2016/17
 #### Questo sito permette di . . .
   - dare un giudizio anonimo ai propri professori
   - risparmiare fogli, circa 10.000 fogli in tutto ogni anno da quest'anno
