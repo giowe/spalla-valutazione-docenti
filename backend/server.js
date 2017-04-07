@@ -8,7 +8,7 @@ const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
 let ipUsati = [];
 let classiCreate = [];
-let classiInfo = []; // array che contiene le varie stringhe di controllo 
+let classiInfo = []; // array che contiene le varie stringhe di controllo
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -37,7 +37,14 @@ const exposeList = (tableName, sorter) => {
     const limit = req.query.limit;
     const offset = req.query.offset;
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
+
       if (err) return res.status(500).json(err);
+
+      if (tableName === 'docenti') {
+        const materie = rows.map(item => item.materia);
+        res.json((Array.from(new Set(materie))));
+      }
+
       res.json(rows);
     })
   });
@@ -83,7 +90,7 @@ app.get('/docenti/:idClasse', (req, res) => {
     });
   };
 });
-//GET CLASSI CREATE 
+//GET CLASSI CREATE
 app.get('/classi/current/:ipPc', (req, res) => {
   const ipPc = req.params.ipPc;
   if (isInArray(ipPc, ipUsati)) {
@@ -94,11 +101,11 @@ app.get('/classi/current/:ipPc', (req, res) => {
     return;
   };
 })
-//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY 
+//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
 function isInArray(value, array) {
   return array.indexOf(value) > -1;
 }
-//FUNZIONE CHE ELIMINA UN VALORE DA UN ARRAY 
+//FUNZIONE CHE ELIMINA UN VALORE DA UN ARRAY
 function removeElem(value, array) {
   for (var i in array) {
     if (array[i] == value) {
@@ -114,7 +121,7 @@ app.get('/sceltaClasse', (req, res) => {
     res.status(600).json("{}"); //gia votato
     return;
   } else if (!isInArray(idClasseScelto, classiCreate)) {
-    res.status(601).json("{}"); //HTML cambiato 
+    res.status(601).json("{}"); //HTML cambiato
     return;
   } else {
     res.status(200).json("{}"); //ok next()
@@ -139,7 +146,7 @@ app.use('/votazioni', (req, res, next) => {
     };
   };
 });
-//API PER INSERIRE LE VOTAZIONI 
+//API PER INSERIRE LE VOTAZIONI
 app.post('/votazioni', (req, res) => {
   const body = req.body; /*require('./fake-data.json');*/
   const ipStudente = req.ip;
@@ -193,7 +200,7 @@ app.all('*', (req, res) => {
 app.listen(port, () => {
   console.log(`ATTENDERE L'AVVISO DEL COMPLETAMENTO GENERAZIONE CLASSI`);
 });
-//AVVIO FUNZIONE PER GENERARE LE CLASSI (DATE LE INIZIALI DELLA CLASSE) E I PASS STRING DI CONTROLLO 
+//AVVIO FUNZIONE PER GENERARE LE CLASSI (DATE LE INIZIALI DELLA CLASSE) E I PASS STRING DI CONTROLLO
 generatePassStringAndClass(sezioneCorrente);
 
 function generatePassStringAndClass(sezioneIniziali) {
@@ -214,11 +221,11 @@ function generatePassStringAndClass(sezioneIniziali) {
       };
       classi.push(currClasse);
 
-      classiCreate.push(classe.id); //array delle classi create SOLO ID 
+      classiCreate.push(classe.id); //array delle classi create SOLO ID
     });
 
     classiLength = classi.length;
-    //PER OGNI CLASSE OTTENUTA DAL DB 
+    //PER OGNI CLASSE OTTENUTA DAL DB
     classi.forEach(classe => {
       let idDocentiCurrent = [];
       let idDomandeDocCurrent = [];
@@ -266,7 +273,7 @@ function generatePassStringAndClass(sezioneIniziali) {
             classe.passString = passString;
             classiInfo.push(classe); //ARRAY GLOBALE CON I DATI DELLE VARIE CLASSI  (id , label , passString, nStudenti)
             contatoreClassi++;
-            //AVVISO SE TUTTE LE CLASSI POSSIBILI SONO STATE CREATE 
+            //AVVISO SE TUTTE LE CLASSI POSSIBILI SONO STATE CREATE
             if (contatoreClassi === classiLength) {
               console.log();
               console.log();
@@ -284,8 +291,8 @@ function generatePassStringAndClass(sezioneIniziali) {
     });
   });
 };
-// funzione per il controllo tra passString e la stringa generata partendo dai dati del body 
-// da come risposta true in caso positivo e false in caso negativo 
+// funzione per il controllo tra passString e la stringa generata partendo dai dati del body
+// da come risposta true in caso positivo e false in caso negativo
 function checkData(body, classe) {
   let InDomGenId = [];
   let passStringBody = "";
