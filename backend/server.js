@@ -51,15 +51,16 @@ const exposeList = (tableName, sorter) => {
         let docenti = [];
         rows.forEach(docente => {
           let type;
-          if (isInArray(docente.materia, materie_scientifiche)) type = "Materia Scientifica"
-          if (isInArray(docente.materia, materie_letteratura)) type = "Letteratura"
-          if (isInArray(docente.materia, materie_lingue)) type = "Lingua"
-          if (isInArray(docente.materia, materie_altro)) type = "Altro"
+          const docente_materia = docente.materia;
+          if (isInArray(docente_materia, materie_scientifiche)) type = "Materia Scientifica"
+          if (isInArray(docente_materia, materie_letteratura)) type = "Letteratura"
+          if (isInArray(docente_materia, materie_lingue)) type = "Lingua"
+          if (isInArray(docente_materia, materie_altro)) type = "Altro"
           const obj_docente = {
             id: docente.id,
             nome: docente.nome,
             cognome: docente.cognome,
-            materia: docente.materia,
+            materia: docente_materia,
             tipo_materia: type
           }
           docenti.push(obj_docente);
