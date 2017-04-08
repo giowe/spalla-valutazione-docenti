@@ -222,6 +222,7 @@ app.all('*', (req, res) => {
 app.listen(port, () => {
   console.log(`ATTENDERE L'AVVISO DEL COMPLETAMENTO GENERAZIONE CLASSI`);
 });
+
 //AVVIO FUNZIONE PER GENERARE LE CLASSI (DATE LE INIZIALI DELLA CLASSE) E I PASS STRING DI CONTROLLO
 generatePassStringAndClass(sezioneCorrente);
 
