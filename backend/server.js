@@ -5,6 +5,10 @@ const mysql = require('mysql');
 const config = require('./config.json');
 const uuid = require('uuid/v4');
 const parallel = require('async').parallel;
+const materie_scientifiche = require('./tipoMaterie.json').T_Scientifico;
+const materie_letteratura = require('./tipoMaterie.json').T_Letteratura;
+const materie_lingue = require('./tipoMaterie.json').T_Lingue;
+const materie_altro = require('./tipoMaterie.json').T_Altro;
 const sezioneCorrente = process.argv[2];
 let ipUsati = [];
 let classiCreate = [];
@@ -41,11 +45,29 @@ const exposeList = (tableName, sorter) => {
       if (err) return res.status(500).json(err);
 
       if (tableName === 'docenti') {
+        /*
         const materie = rows.map(item => item.materia);
-        res.json((Array.from(new Set(materie))));
-      }
-
-      res.json(rows);
+        console.log((Array.from(new Set(materie))));*/
+        let docenti = [];
+        rows.forEach(docente => {
+          let type;
+          if (isInArray(docente.materia, materie_scientifiche)) type = "Materia Scientifica"
+          if (isInArray(docente.materia, materie_letteratura)) type = "Letteratura"
+          if (isInArray(docente.materia, materie_lingue)) type = "Lingua"
+          if (isInArray(docente.materia, materie_altro)) type = "Altro"
+          const obj_docente = {
+            id: docente.id,
+            nome: docente.nome,
+            cognome: docente.cognome,
+            materia: docente.materia,
+            tipo_materia: type
+          }
+          docenti.push(obj_docente);
+        });
+        res.json(docenti);
+      } else {
+        res.json(rows);
+      };
     })
   });
 };
@@ -71,7 +93,7 @@ app.get('/docenti/:idClasse', (req, res) => {
   const idClasse = req.params.idClasse;
   const ipPc = req.query.ipPc;
   if (isInArray(ipPc, ipUsati)) {
-    res.status(600).json("{}");//gia votato
+    res.status(600).json("{}"); //gia votato
     return;
   } else if (!isInArray(idClasse, classiCreate)) {
     res.status(202).json("{}");
@@ -182,7 +204,7 @@ app.post('/votazioni', (req, res) => {
       classiInfo.forEach(classe => {
         console.log(` N° Voti per la ${classe.label}  : ${classe.nStudenti}`);
       });
-      console.log('\n\n TOTALE STUDENTI CHE HANNO FINITO DI VOTARE : '+ipUsati.length+'\n\n');
+      console.log('\n\n TOTALE STUDENTI CHE HANNO FINITO DI VOTARE : ' + ipUsati.length + '\n\n');
       console.log('--------------FINE AGGIORNAMENTO STATUS VOTAZIONE---------------');
     });
   });
@@ -279,7 +301,7 @@ function generatePassStringAndClass(sezioneIniziali) {
               console.log();
               console.log('----------------CLASSI CREATE--------------');
               console.log();
-              classiInfo.forEach(classe=>{
+              classiInfo.forEach(classe => {
                 console.log(classe.label);
               });
               console.log();

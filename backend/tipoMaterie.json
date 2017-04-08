@@ -1,0 +1,6 @@
+{
+  "T_Scientifico": ["Matematica e Fisica", "Scienze", "Matematica", "Informatica", "Matematica e Informatica"],
+  "T_Letteratura": ["Lettere", "Storia Filosofia", "Greco", "Storia dell'Arte"],
+  "T_Lingue": ["Francese", "Inglese", "Tedesco"],
+  "T_Altro": ["Religione", "Educazione Fisica"]
+}
