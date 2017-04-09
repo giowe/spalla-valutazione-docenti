@@ -3,4 +3,6 @@ statusCode : 202 ------> classe non valida
 statusCode : 500 ------> query al DB fallita
 statusCode : 600 ------> già votato 
 statusCode : 601 ------> HTML modificato
+statusCode : 700 ------> ERRORE CONTEGGIO DOMANDE 
+statusCode : 701 ------> ERRORE DURANTE IL CALCOLO DELLE MEDIE ALLE DOMANDE 
 
