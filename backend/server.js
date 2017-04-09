@@ -80,27 +80,37 @@ exposeList('studenti', 'idClasse');
 //GET STATISTICHE GENERALI DELLA SCUOLA
 
 app.get('/scuola/statistica', (req, res) => {
+  const votoMin = req.query.votoMin | 1;
   pool.query(`SELECT COUNT(*) as n_domande FROM domande`, (err, rows, fields) => {
-    if (err) return res.status(700).json(err);//  ERRORE CONTEGGIO DOMANDE 
+    if (err) return res.status(700).json(err); //  ERRORE CONTEGGIO DOMANDE 
     let n_domande = rows[0].n_domande;
     let arrayOfQuery = [];
     for (let i = 1; i <= n_domande; i++) {
       arrayOfQuery.push((cb) => {
         pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
           if (err) return cb(err);
-          const avgDomanda = {
+          let avgDomanda = {
             idDomanda: i,
-            avg: rows[0].avg
+            avg: rows[0].avg,
+            countRistretto: 0,
+            countTot: 0
           };
-          cb(null, avgDomanda);
+          pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i}`, (err, rows2, fields) => {
+            if (err) return cb(err);
+            avgDomanda.countTot = rows2[0].n_domande;
+            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i} AND voto >= ${votoMin}`, (err, rows3, fields) => {
+              if (err) return cb(err);
+              avgDomanda.countRistretto = rows3[0].n_domande;
+              cb(null, avgDomanda);
+            });
+          });
         });
       });
     };
     parallel(arrayOfQuery, (err, results) => {
       if (err) {
-        return res.statusCode(701).json(err);// ERRORE DURANTE GET MEDIE DELLE DOMANDE DAL DB
+        return res.statusCode(701).json(err); // ERRORE DURANTE GET MEDIE DELLE DOMANDE DAL DB
       } else {
-        console.log(results);
         res.json(results);
       }
     });
