@@ -41,9 +41,7 @@ const exposeList = (tableName, sorter) => {
     const limit = req.query.limit;
     const offset = req.query.offset;
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
-
       if (err) return res.status(500).json(err);
-
       if (tableName === 'docenti') {
         /*
         const materie = rows.map(item => item.materia);
@@ -79,6 +77,36 @@ exposeList('docenti', 'cognome');
 //exposeList('votazioni', 'idDocente');
 exposeList('studenti', 'idClasse');
 
+//GET STATISTICHE GENERALI DELLA SCUOLA
+
+app.get('/scuola/statistica', (req, res) => {
+  pool.query(`SELECT COUNT(*) as n_domande FROM domande`, (err, rows, fields) => {
+    if (err) return res.status(700).json(err);//  ERRORE CONTEGGIO DOMANDE 
+    let n_domande = rows[0].n_domande;
+    let arrayOfQuery = [];
+    for (let i = 1; i <= n_domande; i++) {
+      arrayOfQuery.push((cb) => {
+        pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
+          if (err) return cb(err);
+          const avgDomanda = {
+            idDomanda: i,
+            avg: rows[0].avg
+          };
+          cb(null, avgDomanda);
+        });
+      });
+    };
+    parallel(arrayOfQuery, (err, results) => {
+      if (err) {
+        return res.statusCode(701).json(err);// ERRORE DURANTE GET MEDIE DELLE DOMANDE DAL DB
+      } else {
+        console.log(results);
+        res.json(results);
+      }
+    });
+  })
+})
+
 //API presa da Gio
 
 app.get(`/votazioni`, (req, res) => {
@@ -86,7 +114,7 @@ app.get(`/votazioni`, (req, res) => {
   const offset = req.query.offset;
   let where = req.query.where;
   let whereString = '';
-  if (where){
+  if (where) {
     try {
       where = JSON.parse(where);
 
@@ -97,7 +125,7 @@ app.get(`/votazioni`, (req, res) => {
         if (type === 'object') {
 
         } else {
-          const wrapperChar =type === 'string' ? '"' : '';
+          const wrapperChar = type === 'string' ? '"' : '';
           whereString.push(`\`${key}\` = ${wrapperChar+value+wrapperChar}`);
         }
       });
@@ -107,29 +135,29 @@ app.get(`/votazioni`, (req, res) => {
         whereString = '';
       }
 
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       where = null;
     }
   }
-    
+
   //console.log(whereString);
-  
+
   pool.query(
-   `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
+    `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
    INNER JOIN studenti ON votazioni.idStudente = studenti.id
    INNER JOIN docenti ON votazioni.idDocente = docenti.id 
    ${whereString}
-   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, 
-    
+   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`,
+
     (err, rows, fields) => {
-    if (err) return res.status(500).json(err);
-    
-    res.json({
-      count: rows.length,
-      data: rows
-    });
-  })
+      if (err) return res.status(500).json(err);
+
+      res.json({
+        count: rows.length,
+        data: rows
+      });
+    })
 });
 
 
