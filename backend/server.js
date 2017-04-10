@@ -87,24 +87,42 @@ app.get('/scuola/statistica', (req, res) => {
     let arrayOfQuery = [];
     for (let i = 1; i <= n_domande; i++) {
       arrayOfQuery.push((cb) => {
-        pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
-          if (err) return cb(err);
-          let avgDomanda = {
-            idDomanda: i,
-            avg: rows[0].avg,
-            countRistretto: 0,
-            countTot: 0
-          };
-          pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i}`, (err, rows2, fields) => {
-            if (err) return cb(err);
-            avgDomanda.countTot = rows2[0].n_domande;
-            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i} AND voto >= ${votoMin}`, (err, rows3, fields) => {
+        //REWORKED ALL ASYNC
+        let avgDomanda = {
+          idDomanda: i,
+          avg: 0,
+          countRistretto: 0,
+          countTot: 0
+        };
+        const parallelQuery = [
+          (cb) => {
+            pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
               if (err) return cb(err);
-              avgDomanda.countRistretto = rows3[0].n_domande;
-              cb(null, avgDomanda);
-            });
-          });
+              cb(null, rows[0].avg);
+            })
+          },
+          (cb) => {
+            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
+              if (err) return cb(err);
+              cb(null, rows[0].n_domande);
+            })
+          },
+          (cb) => {
+            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i} AND voto >= ${votoMin}`, (err, rows, fields) => {
+              if (err) return cb(err);
+              cb(null, rows[0].n_domande);
+            })
+          }
+        ];
+        parallel(parallelQuery, (err, results) => {
+          if (err) return cb(err);
+          avgDomanda.avg = results[0];
+          avgDomanda.countTot = results[1];
+          avgDomanda.countRistretto = results[2];
+          console.log(avgDomanda);
+          cb(null, avgDomanda);
         });
+
       });
     };
     parallel(arrayOfQuery, (err, results) => {
@@ -117,9 +135,143 @@ app.get('/scuola/statistica', (req, res) => {
   })
 })
 
+app.get('/votazioni/statistica', (req, res) => {
+  let arrayIdDomandeDocenti = [];
+  let arrayIdDomandeGenerali = [];
+  let arrayDocentiInfo = [];
+  let serieQuery = [
+    //domande generali
+    (cb) => {
+      pool.query(`SELECT id FROM domande WHERE type = 1 ORDER BY id ASC`, (err, rows, fields) => {
+        if (err) return cb(err);
+        const idDomande = rows.map(item => item.id);
+        cb(null, Array.from(new Set(idDomande)))
+      })
+    },
+    //domande docenti
+    (cb) => {
+      pool.query(`SELECT id FROM domande WHERE type = 0 ORDER BY id ASC`, (err, rows, fields) => {
+        if (err) return cb(err);
+        const idDomande = rows.map(item => item.id);
+        cb(null, Array.from(new Set(idDomande)))
+      })
+    },
+    (cb) => {
+      pool.query(`SELECT * FROM docenti ORDER BY id ASC`, (err, rows, fields) => {
+        if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
+        const arrayDocenti = [];
+        rows.forEach(docente => {
+          let type;
+          const docente_materia = docente.materia;
+          if (isInArray(docente_materia, materie_scientifiche)) type = "Materia Scientifica"
+          if (isInArray(docente_materia, materie_letteratura)) type = "Letteratura"
+          if (isInArray(docente_materia, materie_lingue)) type = "Lingua"
+          if (isInArray(docente_materia, materie_altro)) type = "Altro"
+          let docentis = {
+            idDocente: docente.id,
+            nome: docente.nome,
+            cognome: docente.cognome,
+            materia: docente.materia,
+            tipo_materia: type,
+            avgTot: 0,
+            valutazione: []
+          };
+          arrayDocenti.push(docentis);
+        })
+        cb(null, arrayDocenti);
+      })
+    }
+
+  ];
+
+  parallel(serieQuery, (err, results) => {
+    if (err) return res.status(702).json(err); // ERRORE DURANTE SERIE QUERY
+    const n_domandeGenerali = results[0].length;
+    const n_domandeDocenti = results[1].length;
+    const n_docenti = results[2].length;
+    arrayIdDomandeGenerali = results[0];
+    arrayIdDomandeDocenti = results[1];
+    arrayDocentiInfo = results[2];
+    serieQuery = [];
+    for (let i = 0; i < n_docenti; i++) {
+      const idDocenteCurr = arrayDocentiInfo[i].idDocente;
+      serieQuery.push((cb) => {
+        let serieQuery1 = [
+          (cb) => { //avgTot
+            pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDocente = ${idDocenteCurr}`, (err, rows, fields) => {
+              if (err) return cb(err);
+              cb(null, rows[0].avg);
+            })
+          }
+        ];
+        for (let y = 0; y < n_domandeDocenti; y++) {
+          const idDomandaCurr = arrayIdDomandeDocenti[y];
+          serieQuery1.push((cb) => {
+            let serieQuery2 = [
+              (cb) => {
+                pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDocente = ${idDocenteCurr} AND idDomanda = ${idDomandaCurr}`, (err, rows, fields) => {
+                  if (err) return cb(err);
+                  cb(null, rows[0].avg);
+                })
+              },
+              (cb) => {
+                pool.query(`SELECT voto ,COUNT(*) as countValue FROM votazioni WHERE idDocente = ${idDocenteCurr} AND idDomanda = ${idDomandaCurr} GROUP BY voto ORDER BY voto ASC`, (err, rows, fields) => {
+                  if (err) return cb(err);
+                  let countVal=[];
+                  rows.forEach(countRows =>{
+                    let a = {
+                      value: countRows.voto,
+                      count: countRows.countValue
+                    };
+                    countVal.push(a);
+                  });
+                  cb(null, countVal);
+                })
+              }
+            ];
+            parallel(serieQuery2, (err, data) => {
+              if (err) return cb(err);
+              let b = data[1].map(item => item.count)
+              var somma = b.reduce((a, b) => { return a + b; }, 0);
+              const parallelDocenteVal = {
+                idDomanda: idDomandaCurr,
+                countTot: somma,
+                avg: data[0],
+                countVal: data[1]
+              };
+              cb(null, parallelDocenteVal);
+            })
+          });
+        };
+        parallel(serieQuery1, (err, data) => {
+          if (err) return cb(err);
+          let valutations = [];
+          for (let x = 1; x <= n_domandeDocenti; x++) { //in caso di errore controlla qui
+            valutations.push(data[x]);
+          }
+          const docenteSerieQuery1 = {
+            avgTot: data[0],
+            valutazione: valutations // array
+          };
+          cb(null,docenteSerieQuery1);
+        });
+      })
+    };
+    parallel(serieQuery, (err, results) => {
+      if (err) return res.status(703).json(err); // ERRORE DURANTE GET VARI COUNT
+      for (let i = 0; i < n_docenti; i++) {
+        arrayDocentiInfo[i].avgTot = results[i].avgTot;
+        arrayDocentiInfo[i].valutazione = results[i].valutazione;
+      };
+      console.log(arrayDocentiInfo);
+      res.json(arrayDocentiInfo);
+    })
+  });
+})
+
 //API presa da Gio
 
-app.get(`/votazioni`, (req, res) => {
+/*app.get(`/votazioni`, (req, res) => {
   const limit = req.query.limit;
   const offset = req.query.offset;
   let where = req.query.where;
@@ -169,7 +321,7 @@ app.get(`/votazioni`, (req, res) => {
       });
     })
 });
-
+*/
 
 // GET DOMANDE IN BASE AL TIPO
 app.get(`/domande/:type`, (req, res) => {
