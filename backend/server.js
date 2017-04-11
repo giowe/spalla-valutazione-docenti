@@ -78,88 +78,154 @@ exposeList('docenti', 'cognome');
 exposeList('studenti', 'idClasse');
 
 //GET STATISTICHE GENERALI DELLA SCUOLA
-
-app.get('/scuola/statistica', (req, res) => {
-  const votoMin = req.query.votoMin | 1;
-  pool.query(`SELECT COUNT(*) as n_domande FROM domande`, (err, rows, fields) => {
-    if (err) return res.status(700).json(err); //  ERRORE CONTEGGIO DOMANDE 
-    let n_domande = rows[0].n_domande;
-    let arrayOfQuery = [];
-    for (let i = 1; i <= n_domande; i++) {
-      arrayOfQuery.push((cb) => {
-        //REWORKED ALL ASYNC
-        let avgDomanda = {
-          idDomanda: i,
-          avg: 0,
-          countRistretto: 0,
-          countTot: 0
+app.get('/votazioni/scuola', (req, res) => {
+  pool.query(`SELECT idDomanda , voto ,COUNT(*) as countValue FROM votazioni GROUP BY idDomanda , voto ORDER BY idDomanda , voto ASC`, (err, rows, fields) => {
+    if (err) return res.status(705).json(err);
+    let countVal = [];
+    let index = 0;
+    let countTotRows = 0;
+    let sommaRows = 0;
+    rows.forEach(countRows => {
+      const idDomandaRows = countRows.idDomanda;
+      if (index === idDomandaRows) {
+        const n_countVal = countVal.length - 1;
+        const votoRows = countRows.voto;
+        const countRowsTot01 = countRows.countValue;
+        countTotRows += countRowsTot01;
+        sommaRows += countRowsTot01 * votoRows;
+        const avgRows = sommaRows / countTotRows;
+        const votazioneRows = {
+          value: votoRows,
+          count: countRowsTot01
         };
-        const parallelQuery = [
-          (cb) => {
-            pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
-              if (err) return cb(err);
-              cb(null, rows[0].avg);
-            })
-          },
-          (cb) => {
-            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i}`, (err, rows, fields) => {
-              if (err) return cb(err);
-              cb(null, rows[0].n_domande);
-            })
-          },
-          (cb) => {
-            pool.query(`SELECT COUNT(*) as n_domande FROM votazioni WHERE idDomanda = ${i} AND voto >= ${votoMin}`, (err, rows, fields) => {
-              if (err) return cb(err);
-              cb(null, rows[0].n_domande);
-            })
-          }
-        ];
-        parallel(parallelQuery, (err, results) => {
-          if (err) return cb(err);
-          avgDomanda.avg = results[0];
-          avgDomanda.countTot = results[1];
-          avgDomanda.countRistretto = results[2];
-          console.log(avgDomanda);
-          cb(null, avgDomanda);
-        });
-
-      });
-    };
-    parallel(arrayOfQuery, (err, results) => {
-      if (err) {
-        return res.statusCode(701).json(err); // ERRORE DURANTE GET MEDIE DELLE DOMANDE DAL DB
+        countVal[n_countVal].votazione.push(votazioneRows);
+        countVal[n_countVal].countTot = countTotRows;
+        countVal[n_countVal].avg = avgRows;
       } else {
-        res.json(results);
+        const votoRows = countRows.voto;
+        countTotRows = countRows.countValue;
+        sommaRows = countTotRows * votoRows;
+        const avgRows = sommaRows / countTotRows;
+        const votazioneRows = {
+          value: votoRows,
+          count: countTotRows
+        };
+        let domanda = {
+          idDomanda: idDomandaRows,
+          countTot: countTotRows,
+          avg: avgRows,
+          votazione: [votazioneRows]
+        };
+        index = idDomandaRows;
+        countVal.push(domanda);
       }
     });
-  })
+    res.json(countVal);
+  });
 })
 
-app.get('/votazioni/statistica', (req, res) => {
-  let arrayIdDomandeDocenti = [];
-  let arrayIdDomandeGenerali = [];
-  let arrayDocentiInfo = [];
-  let serieQuery = [
-    //domande generali
+app.get('/votazioni/docenti', (req, res) => {
+  const queryToSend = [
     (cb) => {
-      pool.query(`SELECT id FROM domande WHERE type = 1 ORDER BY id ASC`, (err, rows, fields) => {
+      console.log('Inizio :       ' + Date());
+      pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
-        const idDomande = rows.map(item => item.id);
-        cb(null, Array.from(new Set(idDomande)))
+        let statisticheDocenti = [];
+        let indexDomanda = 0;
+        let indexDocente = 0;
+        let sommaAvgTot = 0;
+        let countAvgTot = 0;
+        let sommaAvgDomanda = 0;
+        let countAvgDomanda = 0;
+        rows.forEach(data => {
+          const idDocenteData = data.idDocente;
+          const idDomandaData = data.idDomanda;
+          const voto = data.voto;
+          const countDomanda = data.countValue;
+          if (indexDocente === idDocenteData && indexDomanda === idDomandaData) {
+            //stesso docente e domanda
+            countAvgTot += countDomanda;
+            sommaAvgTot += countDomanda * voto;
+            countAvgDomanda += countDomanda;
+            sommaAvgDomanda += countDomanda * voto;
+            let countValueInProgress = {
+              value: voto,
+              count: countDomanda
+            }
+            const n_statisticheDocenti = statisticheDocenti.length - 1;
+            const n_valutazione = statisticheDocenti[n_statisticheDocenti].valutazione.length - 1;
+            statisticheDocenti[n_statisticheDocenti].avgTot = sommaAvgTot / countAvgTot;
+            statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countVal.push(countValueInProgress);
+            statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countTot = countAvgDomanda;
+            statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].avg = sommaAvgDomanda / countAvgDomanda;
+          } else if (indexDocente === idDocenteData && indexDomanda !== idDomandaData) {
+            //stesso docente ma domanda cambiata
+            indexDomanda = idDomandaData;
+            countAvgTot += countDomanda;
+            sommaAvgTot += countDomanda * voto;
+            countAvgDomanda = countDomanda;
+            sommaAvgDomanda = countDomanda * voto;
+            let countValueInProgress = {
+              value: voto,
+              count: countDomanda
+            }
+            let valutazioneInProgress = {
+              idDomanda: idDomandaData,
+              countTot: countDomanda,
+              avg: sommaAvgDomanda / countAvgDomanda,
+              countVal: []
+            }
+            valutazioneInProgress.countVal.push(countValueInProgress);
+            const n_statisticheDocenti = statisticheDocenti.length - 1;
+            statisticheDocenti[n_statisticheDocenti].avgTot = sommaAvgTot / countAvgTot;
+            statisticheDocenti[n_statisticheDocenti].valutazione.push(valutazioneInProgress);
+          } else {
+            //cambio docente 
+            indexDocente = idDocenteData;
+            indexDomanda = idDomandaData;
+            countAvgTot = countDomanda;
+            sommaAvgTot = countAvgTot * voto;
+            countAvgDomanda = countDomanda;
+            sommaAvgDomanda = countDomanda * voto;
+            let countValueInProgress = {
+              value: voto,
+              count: countDomanda
+            }
+            let valutazioneInProgress = {
+              idDomanda: idDomandaData,
+              countTot: countDomanda,
+              avg: sommaAvgDomanda / countAvgDomanda,
+              countVal: []
+            }
+            valutazioneInProgress.countVal.push(countValueInProgress);
+            let docenteInProgress = {
+              idDocente: idDocenteData,
+              avgTot: sommaAvgTot / countAvgTot,
+              valutazione: []
+            }
+            docenteInProgress.valutazione.push(valutazioneInProgress);
+            statisticheDocenti.push(docenteInProgress);
+          }
+        })
+        console.log('FINE :       ' + Date());
+        cb(null, statisticheDocenti);
       })
-    },
-    //domande docenti
-    (cb) => {
-      pool.query(`SELECT id FROM domande WHERE type = 0 ORDER BY id ASC`, (err, rows, fields) => {
-        if (err) return cb(err);
-        const idDomande = rows.map(item => item.id);
-        cb(null, Array.from(new Set(idDomande)))
-      })
+
     },
     (cb) => {
       pool.query(`SELECT * FROM docenti ORDER BY id ASC`, (err, rows, fields) => {
         if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
         const arrayDocenti = [];
+        const generale = {
+          idDocente: null,
+          nome: null,
+          cognome: null,
+          materia: null,
+          tipo_materia: null,
+          avgTot: 0,
+          valutazione: []
+        };
+        arrayDocenti.push(generale);
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
@@ -181,97 +247,29 @@ app.get('/votazioni/statistica', (req, res) => {
         cb(null, arrayDocenti);
       })
     }
-
   ];
-
-  parallel(serieQuery, (err, results) => {
-    if (err) return res.status(702).json(err); // ERRORE DURANTE SERIE QUERY
-    const n_domandeGenerali = results[0].length;
-    const n_domandeDocenti = results[1].length;
-    const n_docenti = results[2].length;
-    arrayIdDomandeGenerali = results[0];
-    arrayIdDomandeDocenti = results[1];
-    arrayDocentiInfo = results[2];
-    serieQuery = [];
-    for (let i = 0; i < n_docenti; i++) {
-      const idDocenteCurr = arrayDocentiInfo[i].idDocente;
-      serieQuery.push((cb) => {
-        let serieQuery1 = [
-          (cb) => { //avgTot
-            pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDocente = ${idDocenteCurr}`, (err, rows, fields) => {
-              if (err) return cb(err);
-              cb(null, rows[0].avg);
-            })
-          }
-        ];
-        for (let y = 0; y < n_domandeDocenti; y++) {
-          const idDomandaCurr = arrayIdDomandeDocenti[y];
-          serieQuery1.push((cb) => {
-            let serieQuery2 = [
-              (cb) => {
-                pool.query(`SELECT AVG(voto) as avg FROM votazioni WHERE idDocente = ${idDocenteCurr} AND idDomanda = ${idDomandaCurr}`, (err, rows, fields) => {
-                  if (err) return cb(err);
-                  cb(null, rows[0].avg);
-                })
-              },
-              (cb) => {
-                pool.query(`SELECT voto ,COUNT(*) as countValue FROM votazioni WHERE idDocente = ${idDocenteCurr} AND idDomanda = ${idDomandaCurr} GROUP BY voto ORDER BY voto ASC`, (err, rows, fields) => {
-                  if (err) return cb(err);
-                  let countVal=[];
-                  rows.forEach(countRows =>{
-                    let a = {
-                      value: countRows.voto,
-                      count: countRows.countValue
-                    };
-                    countVal.push(a);
-                  });
-                  cb(null, countVal);
-                })
-              }
-            ];
-            parallel(serieQuery2, (err, data) => {
-              if (err) return cb(err);
-              let b = data[1].map(item => item.count)
-              var somma = b.reduce((a, b) => { return a + b; }, 0);
-              const parallelDocenteVal = {
-                idDomanda: idDomandaCurr,
-                countTot: somma,
-                avg: data[0],
-                countVal: data[1]
-              };
-              cb(null, parallelDocenteVal);
-            })
-          });
-        };
-        parallel(serieQuery1, (err, data) => {
-          if (err) return cb(err);
-          let valutations = [];
-          for (let x = 1; x <= n_domandeDocenti; x++) { //in caso di errore controlla qui
-            valutations.push(data[x]);
-          }
-          const docenteSerieQuery1 = {
-            avgTot: data[0],
-            valutazione: valutations // array
-          };
-          cb(null,docenteSerieQuery1);
-        });
-      })
-    };
-    parallel(serieQuery, (err, results) => {
-      if (err) return res.status(703).json(err); // ERRORE DURANTE GET VARI COUNT
-      for (let i = 0; i < n_docenti; i++) {
-        arrayDocentiInfo[i].avgTot = results[i].avgTot;
-        arrayDocentiInfo[i].valutazione = results[i].valutazione;
-      };
-      console.log(arrayDocentiInfo);
-      res.json(arrayDocentiInfo);
-    })
+  parallel(queryToSend, (err, results) => {
+    if (err) res.status(705).json(err);
+    let docentiArray =results[1];
+    const valutazioneDocenti = results[0];
+    const n_docentiArray = docentiArray.length;
+    const n_valutazioneDocenti = valutazioneDocenti.length;
+    for(let i = 0;i<n_docentiArray;i++){
+      for(let y = 0;y<n_valutazioneDocenti;y++){
+        if(docentiArray[i].idDocente===valutazioneDocenti[y].idDocente){
+          docentiArray[i].avgTot = valutazioneDocenti[y].avgTot;
+          docentiArray[i].valutazione.push(valutazioneDocenti[y].valutazione);
+          break;
+        }
+      }
+    }
+    res.json(docentiArray);
   });
 })
 
 //API presa da Gio
 
-/*app.get(`/votazioni`, (req, res) => {
+app.get(`/votazioni`, (req, res) => {
   const limit = req.query.limit;
   const offset = req.query.offset;
   let where = req.query.where;
@@ -321,8 +319,6 @@ app.get('/votazioni/statistica', (req, res) => {
       });
     })
 });
-*/
-
 // GET DOMANDE IN BASE AL TIPO
 app.get(`/domande/:type`, (req, res) => {
   const params = {
