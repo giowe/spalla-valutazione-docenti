@@ -1,4 +1,5 @@
 backend/config.json
+backend_visualization/config.json
 *.csv
 *.dat
 *.iml

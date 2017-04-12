@@ -4,7 +4,7 @@ const install = require('gulp-install');
 const connect = require('gulp-connect');
 
 gulp.task('install', ()=>{
-  gulp.src(['./backend/package.json', './frontend/package.json'])
+  gulp.src(['./backend/package.json', './frontend/package.json','./backend_visualization/package.json'])
     .pipe(install());
 });
 
