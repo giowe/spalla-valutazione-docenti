@@ -84,16 +84,20 @@ app.get('/votazioni/scuola', (req, res) => {
     let countVal = [];
     let index = 0;
     let countTotRows = 0;
-    let sommaRows = 0;
+    let sommaAvgRows = 0;
+    let countAvgRows = 0;
     rows.forEach(countRows => {
       const idDomandaRows = countRows.idDomanda;
       if (index === idDomandaRows) {
         const n_countVal = countVal.length - 1;
         const votoRows = countRows.voto;
         const countRowsTot01 = countRows.countValue;
+        if (votoRows !== -1) {
+          countAvgRows += countRowsTot01;
+          sommaAvgRows += countRowsTot01 * votoRows;
+        }
         countTotRows += countRowsTot01;
-        sommaRows += countRowsTot01 * votoRows;
-        const avgRows = sommaRows / countTotRows;
+        const avgRows = sommaAvgRows / countAvgRows;
         const votazioneRows = {
           value: votoRows,
           count: countRowsTot01
@@ -102,10 +106,14 @@ app.get('/votazioni/scuola', (req, res) => {
         countVal[n_countVal].countTot = countTotRows;
         countVal[n_countVal].avg = avgRows;
       } else {
-        const votoRows = countRows.voto;
         countTotRows = countRows.countValue;
-        sommaRows = countTotRows * votoRows;
-        const avgRows = sommaRows / countTotRows;
+        countAvgRows = sommaAvgRows = 0;
+        const votoRows = countRows.voto;
+        if (votoRows !== -1) {
+          countAvgRows = countTotRows;
+          sommaAvgRows = countAvgRows * votoRows;
+        }
+        const avgRows = sommaAvgRows / countAvgRows;
         const votazioneRows = {
           value: votoRows,
           count: countTotRows
@@ -130,6 +138,7 @@ app.get('/votazioni/docenti', (req, res) => {
       console.log('Inizio :       ' + Date());
       pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
+        console.log('Elaborazione dati :       ' + Date());
         let statisticheDocenti = [];
         let indexDomanda = 0;
         let indexDocente = 0;
@@ -137,6 +146,7 @@ app.get('/votazioni/docenti', (req, res) => {
         let countAvgTot = 0;
         let sommaAvgDomanda = 0;
         let countAvgDomanda = 0;
+        let countTotDomanda = 0;
         rows.forEach(data => {
           const idDocenteData = data.idDocente;
           const idDomandaData = data.idDomanda;
@@ -144,10 +154,13 @@ app.get('/votazioni/docenti', (req, res) => {
           const countDomanda = data.countValue;
           if (indexDocente === idDocenteData && indexDomanda === idDomandaData) {
             //stesso docente e domanda
-            countAvgTot += countDomanda;
-            sommaAvgTot += countDomanda * voto;
-            countAvgDomanda += countDomanda;
-            sommaAvgDomanda += countDomanda * voto;
+            if (voto !== -1) {
+              countAvgTot += countDomanda;
+              sommaAvgTot += countDomanda * voto;
+              countAvgDomanda += countDomanda;
+              sommaAvgDomanda += countDomanda * voto;
+            };
+            countTotDomanda += countDomanda;
             let countValueInProgress = {
               value: voto,
               count: countDomanda
@@ -156,15 +169,19 @@ app.get('/votazioni/docenti', (req, res) => {
             const n_valutazione = statisticheDocenti[n_statisticheDocenti].valutazione.length - 1;
             statisticheDocenti[n_statisticheDocenti].avgTot = sommaAvgTot / countAvgTot;
             statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countVal.push(countValueInProgress);
-            statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countTot = countAvgDomanda;
+            statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countTot = countTotDomanda;
             statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].avg = sommaAvgDomanda / countAvgDomanda;
           } else if (indexDocente === idDocenteData && indexDomanda !== idDomandaData) {
             //stesso docente ma domanda cambiata
             indexDomanda = idDomandaData;
-            countAvgTot += countDomanda;
-            sommaAvgTot += countDomanda * voto;
-            countAvgDomanda = countDomanda;
-            sommaAvgDomanda = countDomanda * voto;
+            countAvgDomanda = sommaAvgDomanda = 0;
+            if (voto !== -1) {
+              countAvgTot += countDomanda;
+              sommaAvgTot += countDomanda * voto;
+              countAvgDomanda = countDomanda;
+              sommaAvgDomanda = countDomanda * voto;
+            };
+            countTotDomanda = countDomanda;
             let countValueInProgress = {
               value: voto,
               count: countDomanda
@@ -183,10 +200,14 @@ app.get('/votazioni/docenti', (req, res) => {
             //cambio docente 
             indexDocente = idDocenteData;
             indexDomanda = idDomandaData;
-            countAvgTot = countDomanda;
-            sommaAvgTot = countAvgTot * voto;
-            countAvgDomanda = countDomanda;
-            sommaAvgDomanda = countDomanda * voto;
+            countAvgTot = sommaAvgTot = countAvgDomanda = sommaAvgDomanda = 0;
+            if (voto !== -1) {
+              countAvgTot = countDomanda;
+              sommaAvgTot = countDomanda * voto;
+              countAvgDomanda = countDomanda;
+              sommaAvgDomanda = countDomanda * voto;
+            };
+            countTotDomanda = countDomanda;
             let countValueInProgress = {
               value: voto,
               count: countDomanda
@@ -250,15 +271,15 @@ app.get('/votazioni/docenti', (req, res) => {
   ];
   parallel(queryToSend, (err, results) => {
     if (err) res.status(705).json(err);
-    let docentiArray =results[1];
+    let docentiArray = results[1];
     const valutazioneDocenti = results[0];
     const n_docentiArray = docentiArray.length;
     const n_valutazioneDocenti = valutazioneDocenti.length;
-    for(let i = 0;i<n_docentiArray;i++){
-      for(let y = 0;y<n_valutazioneDocenti;y++){
-        if(docentiArray[i].idDocente===valutazioneDocenti[y].idDocente){
+    for (let i = 0; i < n_docentiArray; i++) {
+      for (let y = 0; y < n_valutazioneDocenti; y++) {
+        if (docentiArray[i].idDocente === valutazioneDocenti[y].idDocente) {
           docentiArray[i].avgTot = valutazioneDocenti[y].avgTot;
-          docentiArray[i].valutazione.push(valutazioneDocenti[y].valutazione);
+          docentiArray[i].valutazione = valutazioneDocenti[y].valutazione;
           break;
         }
       }
