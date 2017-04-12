@@ -135,10 +135,8 @@ app.get('/votazioni/scuola', (req, res) => {
 app.get('/votazioni/docenti', (req, res) => {
   const queryToSend = [
     (cb) => {
-      console.log('Inizio :       ' + Date());
       pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
-        console.log('Elaborazione dati :       ' + Date());
         let statisticheDocenti = [];
         let indexDomanda = 0;
         let indexDocente = 0;
@@ -228,7 +226,6 @@ app.get('/votazioni/docenti', (req, res) => {
             statisticheDocenti.push(docenteInProgress);
           }
         })
-        console.log('FINE :       ' + Date());
         cb(null, statisticheDocenti);
       })
 
