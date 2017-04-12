@@ -76,7 +76,7 @@ exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
 //exposeList('votazioni', 'idDocente');
 exposeList('studenti', 'idClasse');
-
+/*
 //GET STATISTICHE GENERALI DELLA SCUOLA
 app.get('/votazioni/scuola', (req, res) => {
   pool.query(`SELECT idDomanda , voto ,COUNT(*) as countValue FROM votazioni GROUP BY idDomanda , voto ORDER BY idDomanda , voto ASC`, (err, rows, fields) => {
@@ -336,7 +336,7 @@ app.get(`/votazioni`, (req, res) => {
         data: rows
       });
     })
-});
+});*/
 // GET DOMANDE IN BASE AL TIPO
 app.get(`/domande/:type`, (req, res) => {
   const params = {
