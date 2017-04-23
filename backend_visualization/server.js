@@ -57,7 +57,6 @@ const exposeList = (tableName, sorter) => {
 exposeList('classi', 'id');
 exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
-//exposeList('votazioni', 'idDocente');
 exposeList('studenti', 'idClasse');
 
 //GET STATISTICHE GENERALI DELLA SCUOLA
@@ -65,7 +64,7 @@ app.get('/votazioni/scuola', (req, res) => {
   pool.query(`SELECT idDomanda , voto ,COUNT(*) as countValue FROM votazioni GROUP BY idDomanda , voto ORDER BY idDomanda , voto ASC`, (err, rows, fields) => {
     if (err) return res.status(705).json(err);
     let countVal = [];
-    let index , countTotRows , sommaAvgRows , countAvgRows = 0;
+    let index, countTotRows, sommaAvgRows, countAvgRows = 0;
     rows.forEach(countRows => {
       const idDomandaRows = countRows.idDomanda;
       const votoRows = countRows.voto;
@@ -110,12 +109,17 @@ app.get('/votazioni/scuola', (req, res) => {
 })
 
 app.get('/votazioni/docenti', (req, res) => {
+  const idDocenteQS = req.query.idDocente;
   const queryToSend = [
     (cb) => {
-      pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
+      let whereString = '';
+      if (idDocenteQS !== undefined) {
+        whereString = `WHERE idDocente = ${idDocenteQS}`;
+      }
+      pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni ${whereString} GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
         let statisticheDocenti = [];
-        let indexDomanda , indexDocente , sommaAvgTot , countAvgTot , sommaAvgDomanda , countAvgDomanda , countTotDomanda = 0;
+        let indexDomanda, indexDocente, sommaAvgTot, countAvgTot, sommaAvgDomanda, countAvgDomanda, countTotDomanda = 0;
         rows.forEach(data => {
           const idDocenteData = data.idDocente;
           const idDomandaData = data.idDomanda;
@@ -198,19 +202,25 @@ app.get('/votazioni/docenti', (req, res) => {
       })
     },
     (cb) => {
-      pool.query(`SELECT * FROM docenti ORDER BY id ASC`, (err, rows, fields) => {
+      let whereString = '';
+      if (idDocenteQS !== undefined) {
+        whereString = `WHERE id = ${idDocenteQS}`;
+      }
+      pool.query(`SELECT * FROM docenti ${whereString} ORDER BY id ASC`, (err, rows, fields) => {
         if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
         const arrayDocenti = [];
-        let generale = {
-          idDocente: null,
-          nome: null,
-          cognome: null,
-          materia: null,
-          tipo_materia: null,
-          avgTot: 0,
-          valutazione: []
-        };
-        arrayDocenti.push(generale);
+        if (idDocenteQS === undefined) {
+          let generale = {
+            idDocente: null,
+            nome: null,
+            cognome: null,
+            materia: null,
+            tipo_materia: null,
+            avgTot: 0,
+            valutazione: []
+          };
+          arrayDocenti.push(generale);
+        }
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
@@ -252,56 +262,6 @@ app.get('/votazioni/docenti', (req, res) => {
   });
 })
 
-//API presa da Gio
-app.get(`/votazioni`, (req, res) => {
-  const limit = req.query.limit;
-  const offset = req.query.offset;
-  let where = req.query.where;
-  let whereString = '';
-  if (where) {
-    try {
-      where = JSON.parse(where);
-      whereString = [];
-      Object.keys(where).forEach(key => {
-        const value = where[key];
-        const type = typeof value;
-        if (type === 'object') {
-
-        } else {
-          const wrapperChar = type === 'string' ? '"' : '';
-          whereString.push(`\`${key}\` = ${wrapperChar+value+wrapperChar}`);
-        }
-      });
-      if (whereString.length) {
-        whereString = `WHERE ${whereString.join(' AND ')}`;
-      } else {
-        whereString = '';
-      }
-
-    } catch (err) {
-      console.log(err);
-      where = null;
-    }
-  }
-  //console.log(whereString);
-  pool.query(
-    `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
-   INNER JOIN studenti ON votazioni.idStudente = studenti.id
-   INNER JOIN docenti ON votazioni.idDocente = docenti.id 
-   ${whereString}
-   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`,
-
-    (err, rows, fields) => {
-      if (err) return res.status(500).json(err);
-
-      res.json({
-        count: rows.length,
-        data: rows
-      });
-    })
-});
-
-
 // GET DOMANDE IN BASE AL TIPO
 app.get(`/domande/:type`, (req, res) => {
   const params = {
@@ -336,7 +296,7 @@ app.all('*', (req, res) => {
     error: {
       status: 404,
       statusCode: 404,
-      message: 'resource not found'
+      message: 'non esiste questa API'
     }
   });
 });
