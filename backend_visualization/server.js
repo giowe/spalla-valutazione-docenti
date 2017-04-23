@@ -54,10 +54,8 @@ const exposeList = (tableName, sorter) => {
   });
 };
 //I VARI GET UTILI
-exposeList('classi', 'id');
 exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
-exposeList('studenti', 'idClasse');
 
 //GET STATISTICHE GENERALI DELLA SCUOLA
 app.get('/votazioni/scuola', (req, res) => {
