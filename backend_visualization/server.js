@@ -111,8 +111,11 @@ app.get('/votazioni/docenti', (req, res) => {
   const queryToSend = [
     (cb) => {
       let whereString = '';
-      if (idDocenteQS !== undefined) {
+      if (idDocenteQS !== undefined && idDocenteQS !== '') {
         whereString = `WHERE idDocente = ${idDocenteQS}`;
+      }
+      if (idDocenteQS === 'null') {
+        whereString = `WHERE idDocente IS NULL`;
       }
       pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni ${whereString} GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
@@ -201,62 +204,86 @@ app.get('/votazioni/docenti', (req, res) => {
     },
     (cb) => {
       let whereString = '';
-      if (idDocenteQS !== undefined) {
+      if (idDocenteQS !== undefined && idDocenteQS !== '') {
         whereString = `WHERE id = ${idDocenteQS}`;
-      }
-      pool.query(`SELECT * FROM docenti ${whereString} ORDER BY id ASC`, (err, rows, fields) => {
-        if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
+      };
+      if (idDocenteQS === 'null') {
         const arrayDocenti = [];
-        if (idDocenteQS === undefined) {
-          let generale = {
-            idDocente: null,
-            nome: null,
-            cognome: null,
-            materia: null,
-            tipo_materia: null,
-            avgTot: 0,
-            valutazione: []
-          };
-          arrayDocenti.push(generale);
-        }
-        rows.forEach(docente => {
-          let type;
-          const docente_materia = docente.materia;
-          if (isInArray(docente_materia, materie_scientifiche)) type = "Materia Scientifica"
-          if (isInArray(docente_materia, materie_letteratura)) type = "Letteratura"
-          if (isInArray(docente_materia, materie_lingue)) type = "Lingua"
-          if (isInArray(docente_materia, materie_altro)) type = "Altro"
-          let docenteRows = {
-            idDocente: docente.id,
-            nome: docente.nome,
-            cognome: docente.cognome,
-            materia: docente.materia,
-            tipo_materia: type,
-            avgTot: 0,
-            valutazione: []
-          };
-          arrayDocenti.push(docenteRows);
-        })
+        let generale = {
+          idDocente: null,
+          nome: null,
+          cognome: null,
+          materia: null,
+          tipo_materia: null,
+          avgTot: 0,
+          valutazione: []
+        };
+        arrayDocenti.push(generale);
         cb(null, arrayDocenti);
-      })
+      } else {
+        pool.query(`SELECT * FROM docenti ${whereString} ORDER BY id ASC`, (err, rows, fields) => {
+          if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
+          const arrayDocenti = [];
+          if (idDocenteQS === undefined || idDocenteQS === '') {
+            let generale = {
+              idDocente: null,
+              nome: null,
+              cognome: null,
+              materia: null,
+              tipo_materia: null,
+              avgTot: 0,
+              valutazione: []
+            };
+            arrayDocenti.push(generale);
+          }
+          rows.forEach(docente => {
+            let type;
+            const docente_materia = docente.materia;
+            if (isInArray(docente_materia, materie_scientifiche)) type = "Materia Scientifica"
+            if (isInArray(docente_materia, materie_letteratura)) type = "Letteratura"
+            if (isInArray(docente_materia, materie_lingue)) type = "Lingua"
+            if (isInArray(docente_materia, materie_altro)) type = "Altro"
+            let docenteRows = {
+              idDocente: docente.id,
+              nome: docente.nome,
+              cognome: docente.cognome,
+              materia: docente.materia,
+              tipo_materia: type,
+              avgTot: 0,
+              valutazione: []
+            };
+            arrayDocenti.push(docenteRows);
+          })
+          cb(null, arrayDocenti);
+        })
+      }
     }
   ];
   parallel(queryToSend, (err, results) => {
-    if (err) res.status(705).json(err);
-    let docentiArray = results[1];
-    const valutazioneDocenti = results[0];
-    const n_docentiArray = docentiArray.length;
-    const n_valutazioneDocenti = valutazioneDocenti.length;
-    for (let i = 0; i < n_docentiArray; i++) {
-      for (let y = 0; y < n_valutazioneDocenti; y++) {
-        if (docentiArray[i].idDocente === valutazioneDocenti[y].idDocente) {
-          docentiArray[i].avgTot = valutazioneDocenti[y].avgTot;
-          docentiArray[i].valutazione = valutazioneDocenti[y].valutazione;
-          break;
+    if (err) {
+      res.status(404).json({
+        error: {
+          status: 404,
+          statusCode: 404,
+          message: err
+        }
+      });
+    } else {
+      let docentiArray = results[1];
+      const valutazioneDocenti = results[0];
+      const n_docentiArray = docentiArray.length;
+      const n_valutazioneDocenti = valutazioneDocenti.length;
+      for (let i = 0; i < n_docentiArray; i++) {
+        for (let y = 0; y < n_valutazioneDocenti; y++) {
+          if (docentiArray[i].idDocente === valutazioneDocenti[y].idDocente) {
+            docentiArray[i].avgTot = valutazioneDocenti[y].avgTot;
+            docentiArray[i].valutazione = valutazioneDocenti[y].valutazione;
+            break;
+          }
         }
       }
+      res.json(docentiArray);
     }
-    res.json(docentiArray);
   });
 })
 
