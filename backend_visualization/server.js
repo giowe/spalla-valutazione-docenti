@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const explorer = require('express-explorer');
 const mysql = require('mysql');
 const config = require('./config.json');
 const parallel = require('async').parallel;
@@ -17,6 +18,15 @@ const pool = mysql.createPool({
 
 const app = new express();
 const port = 4040;
+
+app.use('/explorer',explorer());
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 app.options('*', (req, res) => {
   res.sendStatus(200);
@@ -81,7 +91,7 @@ app.get('/votazioni/scuola', (req, res) => {
           value: votoRows,
           count: countValueRows
         };
-        countVal[n_countVal].votazione.push(votazioneRows);
+        countVal[n_countVal].countVal.push(votazioneRows);
         countVal[n_countVal].countTot = countTotRows;
         countVal[n_countVal].avg = sommaAvgRows / countAvgRows;
       } else { //SE L'ID DELLA DOMANDA NON COINCIDE CON L'ID DOMANDA DI PRIMA ...
@@ -100,7 +110,7 @@ app.get('/votazioni/scuola', (req, res) => {
           idDomanda: idDomandaRows,
           countTot: countTotRows,
           avg: sommaAvgRows / countAvgRows,
-          votazione: [votazioneRows]
+          countVal: [votazioneRows]
         };
         index = idDomandaRows; //SET DEL NUOVO ID DOMANDA
         countVal.push(domanda); //PUSH NUOVA DOMANDA NELL'ARRAY DOMANDE
@@ -315,7 +325,7 @@ app.all('*', (req, res) => {
     error: {
       status: 404,
       statusCode: 404,
-      message: 'non esiste questo endpoint'
+      message: 'resource not found'
     }
   });
 });
