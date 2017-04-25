@@ -64,42 +64,46 @@ app.get('/votazioni/scuola', (req, res) => {
     let countVal = [];
     let index, countTotRows, sommaAvgRows, countAvgRows = 0;
     rows.forEach(countRows => {
+      //MI SALVO I DATI DELL'OGGETTO PRESO IN ESAME
       const idDomandaRows = countRows.idDomanda;
       const votoRows = countRows.voto;
-      if (index === idDomandaRows) {
+      const countValueRows = countRows.countValue;
+      //CONTROLLO IF...
+      if (index === idDomandaRows) { //VUOL DIRE CHE SIAMO ANCORA NELLA STESSA DOMANDA
+        //AGGIORNAMENTO VALORI COME CONTEGGIO E SOMMA
         const n_countVal = countVal.length - 1;
-        const countValueDomanda = countRows.countValue;
-        if (votoRows !== -1) {
-          countAvgRows += countValueDomanda;
-          sommaAvgRows += countValueDomanda * votoRows;
+        if (votoRows !== -1) { //SE IL VOTO NON E' NULLO
+          countAvgRows += countValueRows;
+          sommaAvgRows += countValueRows * votoRows;
         }
-        countTotRows += countValueDomanda;
+        countTotRows += countValueRows;
         const votazioneRows = {
           value: votoRows,
-          count: countValueDomanda
+          count: countValueRows
         };
         countVal[n_countVal].votazione.push(votazioneRows);
         countVal[n_countVal].countTot = countTotRows;
         countVal[n_countVal].avg = sommaAvgRows / countAvgRows;
-      } else {
-        countTotRows = countRows.countValue;
+      } else { //SE L'ID DELLA DOMANDA NON COINCIDE CON L'ID DOMANDA DI PRIMA ...
+        //RESET VALORI PERCHE' ABBIAMO CAMBIATO DOMANDA
+        countTotRows = countValueRows;
         countAvgRows = sommaAvgRows = 0;
-        if (votoRows !== -1) {
+        if (votoRows !== -1) { //SE IL VOTO NON E' NULLO
           countAvgRows = countTotRows;
           sommaAvgRows = countAvgRows * votoRows;
         }
-        const votazioneRows = {
+        const votazioneRows = { //STRUTTURA VOTAZIONE DOMANDA
           value: votoRows,
           count: countTotRows
         };
-        let domanda = {
+        let domanda = { // STRUTTURA DOMANDA
           idDomanda: idDomandaRows,
           countTot: countTotRows,
           avg: sommaAvgRows / countAvgRows,
           votazione: [votazioneRows]
         };
-        index = idDomandaRows;
-        countVal.push(domanda);
+        index = idDomandaRows; //SET DEL NUOVO ID DOMANDA
+        countVal.push(domanda); //PUSH NUOVA DOMANDA NELL'ARRAY DOMANDE
       }
     });
     res.json(countVal);
@@ -207,33 +211,23 @@ app.get('/votazioni/docenti', (req, res) => {
       if (idDocenteQS !== undefined && idDocenteQS !== '') {
         whereString = `WHERE id = ${idDocenteQS}`;
       };
-      if (idDocenteQS === 'null') {
-        const arrayDocenti = [];
-        let generale = {
-          idDocente: null,
-          nome: null,
-          cognome: null,
-          materia: null,
-          tipo_materia: null,
-          avgTot: 0,
-          valutazione: []
-        };
+      let generale = {
+        idDocente: null,
+        nome: null,
+        cognome: null,
+        materia: null,
+        tipo_materia: null,
+        avgTot: 0,
+        valutazione: []
+      };
+      const arrayDocenti = [];
+      if (idDocenteQS === 'null') { //AGGIUNTA DOCENTE GENERALE
         arrayDocenti.push(generale);
         cb(null, arrayDocenti);
       } else {
         pool.query(`SELECT * FROM docenti ${whereString} ORDER BY id ASC`, (err, rows, fields) => {
           if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
-          const arrayDocenti = [];
-          if (idDocenteQS === undefined || idDocenteQS === '') {
-            let generale = {
-              idDocente: null,
-              nome: null,
-              cognome: null,
-              materia: null,
-              tipo_materia: null,
-              avgTot: 0,
-              valutazione: []
-            };
+          if (idDocenteQS === undefined || idDocenteQS === '') { //AGGIUNTA DOCENTE GENERALE
             arrayDocenti.push(generale);
           }
           rows.forEach(docente => {
@@ -247,7 +241,7 @@ app.get('/votazioni/docenti', (req, res) => {
               idDocente: docente.id,
               nome: docente.nome,
               cognome: docente.cognome,
-              materia: docente.materia,
+              materia: docente_materia,
               tipo_materia: type,
               avgTot: 0,
               valutazione: []
@@ -321,11 +315,10 @@ app.all('*', (req, res) => {
     error: {
       status: 404,
       statusCode: 404,
-      message: 'non esiste questa API'
+      message: 'non esiste questo endpoint'
     }
   });
 });
-
 app.listen(port, () => {
   console.log(`IN ASCOLTO ALLA PORTA : ${port}`);
 });
