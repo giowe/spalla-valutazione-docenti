@@ -6,6 +6,8 @@ const config = require('./config.json');
 const parallel = require('async').parallel;
 const votazione_generale = require('./endpoints/votazione_generale.js');
 const votazioni_docenti = require('./endpoints/votazione_docenti.js');
+const docentiXclasse = require('./endpoints/docentiXclasse.js');
+const domandeEndpoint = require('./endpoints/domande.js');
 const materie = require('./tipoMaterie.json');
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -68,36 +70,9 @@ exposeList('docenti', 'cognome');
 
 app.get('/votazioni/scuola',votazione_generale);//GET VOTAZIONE GENERALE SCUOLA
 app.get('/votazioni/docenti',votazioni_docenti);//GET VOTAZIONE GENERALE PER I DOCENTI
+app.get('/docenti/:idClasse',docentiXclasse);//GET DOCENTI PER idClasse
+app.get(`/domande/:type`,domandeEndpoint);// GET DOMANDE IN BASE AL TIPO
 
-// GET DOMANDE IN BASE AL TIPO
-app.get(`/domande/:type`, (req, res) => {
-  const params = {
-    type: req.params.type
-  };
-  pool.query(`SELECT * FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-    if (err) return res.status(500).json(err);
-    res.json(rows);
-  })
-});
-//GET DOCENTI PER idClasse
-app.get('/docenti/:idClasse', (req, res) => {
-  const idClasse = req.params.idClasse;
-  const query = [
-    'SELECT d.id, d.nome, d.cognome, d.materia FROM docenti d',
-    'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
-    'INNER JOIN classi c ON cd.idClasse = c.id',
-    'WHERE c.id = ?'
-  ].join(' ');
-  pool.query(query, [idClasse], (err, rows, fields) => {
-    if (err) return res.status(500).json(err);
-    res.status(200).json(rows);
-    return;
-  });
-});
-//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
-function isInArray(value, array) {
-  return array.indexOf(value) > -1;
-}
 app.all('*', (req, res) => {
   res.status(404).json({
     error: {
@@ -110,3 +85,8 @@ app.all('*', (req, res) => {
 app.listen(port, () => {
   console.log(`IN ASCOLTO ALLA PORTA : ${port}`);
 });
+
+//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
+function isInArray(value, array) {
+  return array.indexOf(value) > -1;
+}
