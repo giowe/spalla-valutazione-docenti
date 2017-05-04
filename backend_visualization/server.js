@@ -103,7 +103,7 @@ app.post('/votazioni/scuola', votazione_generale); //GET VOTAZIONE GENERALE SCUO
 app.post('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
 app.get('/docenti/:idClasse', docentiXclasse); //GET DOCENTI PER idClasse
 app.get(`/domande/:type`, domandeEndpoint); // GET DOMANDE IN BASE AL TIPO
-app.get('/login',login);
+app.post('/login',login);
 
 app.all('*', (req, res) => {
   res.status(404).json({
