@@ -75,10 +75,8 @@ app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI
   try {
     const body = req.body.userData;
     if (checkDataUser(body, req.ip) === true) {
-      console.log('ok');
       next();
     } else {
-      console.log('no');
       res.status(303).json({
         error: {
           status: 303,

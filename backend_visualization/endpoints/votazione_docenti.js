@@ -13,7 +13,10 @@ const pool = mysql.createPool({
 });
 //GET DATI DOCENTI
 router.post('/votazioni/docenti', (req, res) => {
-  const idDocenteQS = req.query.idDocente;
+  let idDocenteQS = req.query.idDocente;
+  if(idDocenteQS.includes(`'`) || idDocenteQS.includes(`"`)){
+    idDocenteQS = "";
+  }
   const queryToSend = [
     (cb) => {
       let whereString = '';
