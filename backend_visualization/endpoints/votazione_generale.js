@@ -9,7 +9,7 @@ const pool = mysql.createPool({
   database: "spalla_vdocenti",
   password: config.dbPassword
 });
-router.get('/votazioni/scuola', (req, res) => {
+router.post('/votazioni/scuola', (req, res) => {
   //GET STATISTICHE GENERALI DELLA SCUOLA
   pool.query(`SELECT idDomanda , voto ,COUNT(*) as countValue FROM votazioni GROUP BY idDomanda , voto ORDER BY idDomanda , voto ASC`, (err, rows, fields) => {
     if (err) return res.status(705).json(err);

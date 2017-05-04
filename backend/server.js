@@ -123,7 +123,7 @@ function isInArray(value, array) {
 }
 //FUNZIONE CHE ELIMINA UN VALORE DA UN ARRAY
 function removeElem(value, array) {
-  for (var i in array) {
+  for (let i in array) {
     if (array[i] == value) {
       array.splice(i, 1);
     }

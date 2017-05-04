@@ -12,7 +12,7 @@ const pool = mysql.createPool({
   password: config.dbPassword
 });
 //GET DATI DOCENTI
-router.get('/votazioni/docenti', (req, res) => {
+router.post('/votazioni/docenti', (req, res) => {
   const idDocenteQS = req.query.idDocente;
   const queryToSend = [
     (cb) => {

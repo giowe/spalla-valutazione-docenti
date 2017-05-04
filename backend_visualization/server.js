@@ -2,12 +2,16 @@
 const express = require('express');
 const explorer = require('express-explorer');
 const mysql = require('mysql');
+const crypto = require('crypto');
+const bodyParser = require('body-parser');
 const config = require('./config.json');
+const cryptoKey = require('./config.json').cryptoKey;
 const parallel = require('async').parallel;
 const votazione_generale = require('./endpoints/votazione_generale.js');
 const votazioni_docenti = require('./endpoints/votazione_docenti.js');
 const docentiXclasse = require('./endpoints/docentiXclasse.js');
 const domandeEndpoint = require('./endpoints/domande.js');
+const login = require('./endpoints/login.js')
 const materie = require('./tipoMaterie.json');
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -19,8 +23,8 @@ const pool = mysql.createPool({
 
 const app = new express();
 const port = 4040;
-
-app.use('/explorer',explorer());
+app.use(bodyParser.json());
+app.use('/explorer', explorer());
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -67,11 +71,39 @@ const exposeList = (tableName, sorter) => {
 //I VARI GET UTILI
 exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
-
-app.get('/votazioni/scuola',votazione_generale);//GET VOTAZIONE GENERALE SCUOLA
-app.get('/votazioni/docenti',votazioni_docenti);//GET VOTAZIONE GENERALE PER I DOCENTI
-app.get('/docenti/:idClasse',docentiXclasse);//GET DOCENTI PER idClasse
-app.get(`/domande/:type`,domandeEndpoint);// GET DOMANDE IN BASE AL TIPO
+app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI
+  try {
+    const body = req.body.userData;
+    if (checkDataUser(body, req.ip) === true) {
+      console.log('ok');
+      next();
+    } else {
+      console.log('no');
+      res.status(303).json({
+        error: {
+          status: 303,
+          statusCode: 303,
+          message: 'dati utente non validi'
+        }
+      })
+      return;
+    }
+  } catch (err) {
+    res.status(303).json({
+      error: {
+        status: 303,
+        statusCode: 303,
+        message: 'dati utente non validi'
+      }
+    })
+    return;
+  }
+});
+app.post('/votazioni/scuola', votazione_generale); //GET VOTAZIONE GENERALE SCUOLA
+app.post('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
+app.get('/docenti/:idClasse', docentiXclasse); //GET DOCENTI PER idClasse
+app.get(`/domande/:type`, domandeEndpoint); // GET DOMANDE IN BASE AL TIPO
+app.get('/login',login);
 
 app.all('*', (req, res) => {
   res.status(404).json({
@@ -89,4 +121,13 @@ app.listen(port, () => {
 //FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
 function isInArray(value, array) {
   return array.indexOf(value) > -1;
+}
+
+function checkDataUser(dataUser, ipUser) {
+  const dataUserString = dataUser.username + dataUser.password + ipUser; //serve get ip 
+  const hash = crypto.createHmac('sha256', dataUserString)
+    .update(cryptoKey)
+    .digest('hex');
+  if (hash === dataUser.label) return true
+  else return false
 }
