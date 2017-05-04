@@ -1,11 +1,11 @@
 {
   "userData": {
-    "username": "zhou",
-    "password": "09558a83545e8de36c120dbf3d1c6d33eb5a3d5aaf75940d6d351dac6d8b7ba4",
-    "label": "8775e880d33784a7f8e61b0531f6d10c401d78a657aaa2d0032bad61f7bf8f5d"
+    "username": "admin",
+    "password": "b479ab53d3d43651031f98abbc4fd67f92627a9a70438b5d3abd84849a73628d",
+    "label": "22303e7a3d44240b89bd83b97d55d7a5f6246733fa90305362a7b1022b1ed061"
   },
   "userLoginData":{
-    "username":"zhou",
-    "password":"cripted"
+    "username":"admin",
+    "password":"admin"
   }
 }
