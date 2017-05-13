@@ -1,6 +1,5 @@
 'use strict';
 const express = require('express');
-const explorer = require('express-explorer');
 const mysql = require('mysql');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
@@ -24,7 +23,6 @@ const pool = mysql.createPool({
 const app = new express();
 const port = 4040;
 app.use(bodyParser.json());
-app.use('/explorer', explorer());
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -74,7 +72,7 @@ exposeList('docenti', 'cognome');
 app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI
   try {
     const body = req.body.userData;
-    if (checkDataUser(body, req.ip) === true) {
+    if (checkDataUser(body) === true) {
       next();
     } else {
       res.status(303).json({
@@ -99,9 +97,10 @@ app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI
 });
 app.post('/votazioni/scuola', votazione_generale); //GET VOTAZIONE GENERALE SCUOLA
 app.post('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
+
 app.get('/docenti/:idClasse', docentiXclasse); //GET DOCENTI PER idClasse
 app.get(`/domande/:type`, domandeEndpoint); // GET DOMANDE IN BASE AL TIPO
-app.post('/login',login);
+//app.post('/login', login); //POTREBBE ESSERE TOLTA
 
 app.all('*', (req, res) => {
   res.status(404).json({
@@ -112,6 +111,7 @@ app.all('*', (req, res) => {
     }
   });
 });
+
 app.listen(port, () => {
   console.log(`IN ASCOLTO ALLA PORTA : ${port}`);
 });
@@ -121,11 +121,16 @@ function isInArray(value, array) {
   return array.indexOf(value) > -1;
 }
 
-function checkDataUser(dataUser, ipUser) {
-  const dataUserString = dataUser.username + dataUser.password + ipUser; //serve get ip 
-  const hash = crypto.createHmac('sha256', dataUserString)
+function checkDataUser(dataUser) {
+  const hash = crypto.createHmac('sha256', dataUser.password)
     .update(cryptoKey)
     .digest('hex');
-  if (hash === dataUser.label) return true
-  else return false
+  const users = require('./users/users.json');
+  let esiste = false;
+  users.forEach(user => {
+    if (user.username == dataUser.username && user.password == hash) {
+      esiste = true;
+    }
+  })
+  return esiste;
 }

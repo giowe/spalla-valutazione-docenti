@@ -1,3 +1,4 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
@@ -14,8 +15,10 @@ const pool = mysql.createPool({
 //GET DATI DOCENTI
 router.post('/votazioni/docenti', (req, res) => {
   let idDocenteQS = req.query.idDocente;
-  if(idDocenteQS.includes(`'`) || idDocenteQS.includes(`"`)){
-    idDocenteQS = "";
+  if ((typeof idDocenteQS) !== 'undefined') {
+    if (idDocenteQS.includes(`'`) || idDocenteQS.includes(`"`)) {
+      idDocenteQS = "";
+    }
   }
   const queryToSend = [
     (cb) => {
@@ -185,6 +188,7 @@ router.post('/votazioni/docenti', (req, res) => {
     }
   });
 });
+
 function isInArray(value, array) {
   return array.indexOf(value) > -1;
 }
