@@ -141,10 +141,10 @@ router.post('/votazioni/docenti', (req, res) => {
           rows.forEach(docente => {
             let type;
             const docente_materia = docente.materia;
-            if (isInArray(docente_materia, materie.T_Scientifico)) type = "Materia Scientifica"
-            if (isInArray(docente_materia, materie.T_Letteratura)) type = "Letteratura"
-            if (isInArray(docente_materia, materie.T_Lingue)) type = "Lingua"
-            if (isInArray(docente_materia, materie.T_Altro)) type = "Altro"
+            if (materie.T_Scientifico.includes(docente_materia)) type = "Materia Scientifica"
+            if (materie.T_Letteratura.includes(docente_materia)) type = "Letteratura"
+            if (materie.T_Lingue.includes(docente_materia)) type = "Lingua"
+            if (materie.T_Altro.includes(docente_materia)) type = "Altro"
             let docenteRows = {
               idDocente: docente.id,
               nome: docente.nome,
@@ -189,7 +189,4 @@ router.post('/votazioni/docenti', (req, res) => {
   });
 });
 
-function isInArray(value, array) {
-  return array.indexOf(value) > -1;
-}
 module.exports = router;

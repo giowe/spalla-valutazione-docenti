@@ -46,10 +46,10 @@ const exposeList = (tableName, sorter) => {
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
-          if (isInArray(docente_materia, materie.T_Scientifico)) type = "Materia Scientifica"
-          if (isInArray(docente_materia, materie.T_Letteratura)) type = "Letteratura"
-          if (isInArray(docente_materia, materie.T_Lingue)) type = "Lingua"
-          if (isInArray(docente_materia, materie.T_Altro)) type = "Altro"
+          if (materie.T_Scientifico.includes(docente_materia)) type = "Materia Scientifica"
+          if (materie.T_Letteratura.includes(docente_materia)) type = "Letteratura"
+          if (materie.T_Lingue.includes(docente_materia)) type = "Lingua"
+          if (materie.T_Altro.includes(docente_materia)) type = "Altro"
           const obj_docente = {
             id: docente.id,
             nome: docente.nome,
@@ -116,10 +116,6 @@ app.listen(port, () => {
   console.log(`IN ASCOLTO ALLA PORTA : ${port}`);
 });
 
-//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
-function isInArray(value, array) {
-  return array.indexOf(value) > -1;
-}
 
 function checkDataUser(dataUser) {
   const hash = crypto.createHmac('sha256', dataUser.password)

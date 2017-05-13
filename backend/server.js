@@ -47,10 +47,10 @@ const exposeList = (tableName, sorter) => {
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
-          if (isInArray(docente_materia, materie_scientifiche)) type = "Materia Scientifica"
-          if (isInArray(docente_materia, materie_letteratura)) type = "Letteratura"
-          if (isInArray(docente_materia, materie_lingue)) type = "Lingua"
-          if (isInArray(docente_materia, materie_altro)) type = "Altro"
+          if (materie_scientifiche.includes(docente_materia)) type = "Materia Scientifica"
+          if (materie_letteratura.includes(docente_materia)) type = "Letteratura"
+          if (materie_lingue.includes(docente_materia)) type = "Lingua"
+          if (materie_altro.includes(docente_materia)) type = "Altro"
           const obj_docente = {
             id: docente.id,
             nome: docente.nome,
@@ -86,10 +86,10 @@ app.get(`/domande/:type`, (req, res) => {
 app.get('/docenti/:idClasse', (req, res) => {
   const idClasse = req.params.idClasse;
   const ipPc = req.query.ipPc;
-  if (isInArray(ipPc, ipUsati)) {
+  if (ipUsati.includes(ipPc)) {
     res.status(600).json("{}"); //gia votato
     return;
-  } else if (!isInArray(idClasse, classiCreate)) {
+  } else if (!classiCreate.includes(idClasse)) {
     res.status(202).json("{}");
     return;
   } else {
@@ -109,7 +109,7 @@ app.get('/docenti/:idClasse', (req, res) => {
 //GET CLASSI CREATE
 app.get('/classi/current/:ipPc', (req, res) => {
   const ipPc = req.params.ipPc;
-  if (isInArray(ipPc, ipUsati)) {
+  if (ipUsati.includes(ipPc)) {
     res.status(600).json("{}"); //gia votato
     return;
   } else {
@@ -117,10 +117,7 @@ app.get('/classi/current/:ipPc', (req, res) => {
     return;
   };
 })
-//FUNZIONE CHE TI CONTROLLA SE UN VALORE è CONTENUTO IN UN ARRAY
-function isInArray(value, array) {
-  return array.indexOf(value) > -1;
-}
+
 //FUNZIONE CHE ELIMINA UN VALORE DA UN ARRAY
 function removeElem(value, array) {
   for (let i in array) {
@@ -133,10 +130,10 @@ function removeElem(value, array) {
 app.get('/sceltaClasse', (req, res) => {
   const ipPc = req.ip;
   const idClasseScelto = req.query.idClasse;
-  if (isInArray(ipPc, ipUsati)) {
+  if (ipUsati.includes(ipPc)) {
     res.status(600).json("{}"); //gia votato
     return;
-  } else if (!isInArray(idClasseScelto, classiCreate)) {
+  } else if (!classiCreate.includes(idClasseScelto)) {
     res.status(601).json("{}"); //HTML cambiato
     return;
   } else {
@@ -148,7 +145,7 @@ app.get('/sceltaClasse', (req, res) => {
 app.use('/votazioni', (req, res, next) => {
   const ipStudente = req.ip;
   const idClasse = req.query.idClasse;
-  if (isInArray(ipStudente, ipUsati)) {
+  if (ipUsati.includes(ipStudente)) {
     res.status(600).json("{}");
     return;
   } else {
