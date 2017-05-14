@@ -10,8 +10,8 @@ const materie_letteratura = require('./tipoMaterie.json').T_Letteratura;
 const materie_lingue = require('./tipoMaterie.json').T_Lingue;
 const materie_altro = require('./tipoMaterie.json').T_Altro;
 const sezioneCorrente = process.argv[2];
-let ipUsati = [];
-let classiCreate = [];
+const ipUsati = [];
+const classiCreate = [];
 let classiInfo = []; // array che contiene le varie stringhe di controllo
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
 const pool = mysql.createPool({
@@ -43,7 +43,7 @@ const exposeList = (tableName, sorter) => {
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       if (tableName === 'docenti') {
-        let docenti = [];
+        const docenti = [];
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
@@ -51,14 +51,14 @@ const exposeList = (tableName, sorter) => {
           if (materie_letteratura.includes(docente_materia)) type = "Letteratura"
           if (materie_lingue.includes(docente_materia)) type = "Lingua"
           if (materie_altro.includes(docente_materia)) type = "Altro"
-          const obj_docente = {
+          docenti.push({
             id: docente.id,
             nome: docente.nome,
             cognome: docente.cognome,
             materia: docente_materia,
             tipo_materia: type
-          }
-          docenti.push(obj_docente);
+          });
+
         });
         res.json(docenti);
       } else {
@@ -150,7 +150,7 @@ app.use('/votazioni', (req, res, next) => {
     return;
   } else {
     const body = req.body;
-    let Compatibilita = checkData(body, idClasse);
+    const Compatibilita = checkData(body, idClasse);//check
     if (Compatibilita) {
       next();
     } else {
@@ -218,8 +218,8 @@ app.listen(port, () => {
 generatePassStringAndClass(sezioneCorrente);
 
 function generatePassStringAndClass(sezioneIniziali) {
-  let classi = [];
-  let classiLength;
+  const classi = [];//check
+  //let classiLength;
   let contatoreClassi = 0;
   const classeCorrente = `${sezioneIniziali}%`;
 
@@ -238,12 +238,12 @@ function generatePassStringAndClass(sezioneIniziali) {
       classiCreate.push(classe.id); //array delle classi create SOLO ID
     });
 
-    classiLength = classi.length;
+    const classiLength = classi.length;
     //PER OGNI CLASSE OTTENUTA DAL DB
     classi.forEach(classe => {
-      let idDocentiCurrent = [];
-      let idDomandeDocCurrent = [];
-      let idDomandeGenCurrent = [];
+      const idDocentiCurrent = [];
+      const idDomandeDocCurrent = [];
+      const idDomandeGenCurrent = [];
       const query = [
         'SELECT d.id FROM docenti d',
         'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
@@ -308,7 +308,7 @@ function generatePassStringAndClass(sezioneIniziali) {
 // funzione per il controllo tra passString e la stringa generata partendo dai dati del body
 // da come risposta true in caso positivo e false in caso negativo
 function checkData(body, classe) {
-  let InDomGenId = [];
+  const InDomGenId = [];
   let passStringBody = "";
   const idClasse = classe;
   let passString = "";
