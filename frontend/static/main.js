@@ -1,4 +1,4 @@
-function debugRispondi(val) {
+/*function debugRispondi(val) {
   if (typeof val === 'undefined') val = 4;
 
   var forms = document.getElementsByTagName('form');
@@ -8,7 +8,7 @@ function debugRispondi(val) {
     var inputs = form.getElementsByTagName('input');
     inputs[val].checked = true;
   }
-}
+}*/
 var send = false;
 function sendTest() {
   var dataToSend = {
