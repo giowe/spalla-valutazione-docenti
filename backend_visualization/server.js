@@ -42,7 +42,7 @@ const exposeList = (tableName, sorter) => {
     pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       if (tableName === 'docenti') {
-        let docenti = [];
+        const docenti = [];
         rows.forEach(docente => {
           let type;
           const docente_materia = docente.materia;
@@ -50,14 +50,14 @@ const exposeList = (tableName, sorter) => {
           if (materie.T_Letteratura.includes(docente_materia)) type = "Letteratura"
           if (materie.T_Lingue.includes(docente_materia)) type = "Lingua"
           if (materie.T_Altro.includes(docente_materia)) type = "Altro"
-          const obj_docente = {
+          // push nell'array docenti un docente
+          docenti.push({
             id: docente.id,
             nome: docente.nome,
             cognome: docente.cognome,
             materia: docente_materia,
             tipo_materia: type
-          }
-          docenti.push(obj_docente);
+          });
         });
         res.json(docenti);
       } else {
@@ -69,7 +69,7 @@ const exposeList = (tableName, sorter) => {
 //I VARI GET UTILI
 exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
-app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI
+app.use('/votazioni/*', (req, res, next) => { //MIDDLEWARE CONTROLLO DATI (credenziali)
   try {
     const body = req.body.userData;
     if (checkDataUser(body) === true) {

@@ -20,7 +20,6 @@ router.post('/login', (req, res) => {
       .digest('hex');
     const username = body.username;
     const users = require('../users/users.json');
-    console.log(users);
     let esiste = false;
     users.forEach(user => {
       if (user.username == username && user.password == password) {
