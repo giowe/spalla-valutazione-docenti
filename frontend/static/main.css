@@ -394,7 +394,7 @@ footer .footerText {
   /* Position the tooltip */
   position: absolute;
   z-index: 1;
-  top: 100%;
+  top: 120%;
   left: 35%;
   margin-left: -75px;
   transition: opacity 0.8s;
