@@ -1,10 +1,8 @@
 'use strict';
 const express = require('express');
 const mysql = require('mysql');
-const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const config = require('./config.json');
-const cryptoKey = require('./config.json').cryptoKey;
 const parallel = require('async').parallel;
 const votazione_generale = require('./endpoints/votazione_generale.js');
 const votazioni_docenti = require('./endpoints/votazione_docenti.js');
