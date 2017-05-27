@@ -109,7 +109,8 @@ body {
 
 .navbar-container-link a.active {
   background-color: rgb(230, 107, 19);
-  color: black;
+  /*color: black;*/
+  color: rgb(66, 66, 66);
   font-size: 18px;
   padding: 12px 8px;
   font-weight: 1400px;
