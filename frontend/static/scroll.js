@@ -39,7 +39,7 @@ function scrollZhou(eID, speed) {
 function navbarScroll(elem) {
   var docID = elem.getAttribute("href")
   docID = docID.substr(1);
-  scrollZhou(docID, 100);
+  scrollZhou(docID, 80);
   return false;
 }
 var userHasScrolled = false;
@@ -82,7 +82,6 @@ function loopIsInViewport(){
       }
       if (navbarLinksIndex < (ArraySectionLength - 2)) {
         var aNext2Elem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 2]);
-        console.log(aNext2Elem);
         aNext2Elem.classList.remove('active');
       }
       aNavLink.classList.add('active');
