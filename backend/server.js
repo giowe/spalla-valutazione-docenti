@@ -184,7 +184,7 @@ app.post('/votazioni', (req, res) => {
       res.json(rows);
       ipUsati.push(ipStudente);
       // si lo so è una porcata (^_^)
-      console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
+      console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
       console.log('-----------------AGGIORNAMENTO STATUS VOTAZIONE-----------------');
       for (let i = 0; i < classiInfo.length; i++) {
         if (classiInfo[i].id == classeStudente) {
