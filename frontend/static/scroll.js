@@ -72,9 +72,18 @@ function loopIsInViewport(){
         var aPrevElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex - 1]);
         aPrevElem.classList.remove('active');
       }
+      if(navbarLinksIndex > 1){
+        var aPrev2Elem = document.getElementById('idNav' + ArraySection[navbarLinksIndex - 2]);
+        aPrev2Elem.classList.remove('active');
+      }
       if (navbarLinksIndex !== (ArraySectionLength - 1)) {
         var aNextElem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 1]);
         aNextElem.classList.remove('active');
+      }
+      if (navbarLinksIndex < (ArraySectionLength - 2)) {
+        var aNext2Elem = document.getElementById('idNav' + ArraySection[navbarLinksIndex + 2]);
+        console.log(aNext2Elem);
+        aNext2Elem.classList.remove('active');
       }
       aNavLink.classList.add('active');
     }
