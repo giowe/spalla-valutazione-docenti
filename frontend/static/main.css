@@ -189,11 +189,11 @@ body {
 
 .body-domande ul .docente {
   font-family: "Source Sans Pro", Arial, sans-serif;
-  border-radius: 25px;
+  border-radius: 15px;
   padding: 20px;
   margin-bottom: 20px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 1.5px solid rgba(155, 155, 155, 1);
+  border: 2px solid rgba(155, 155, 155, 1);
 }
 
 .docente .nome-docente {
@@ -233,12 +233,12 @@ body {
 
 .body-domande ol .domande-generali {
   font-family: "Source Sans Pro", Arial, sans-serif;
-  border-radius: 25px;
+  border-radius: 10px;
   padding: 20px;
   padding-right: 50px;
   padding-left: 50px;
   background-color: rgba(255, 255, 255, 0.8);
-  border: 0.25px solid #4a4b4c;
+   border: 2px solid rgba(155, 155, 155, 1);
 }
 
 ol h1 {
