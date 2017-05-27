@@ -266,9 +266,9 @@ ol h1 {
 }
 
 .bottone-send button {
-  border-radius: 15px;
+  border-radius: 25px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 3px solid rgba(0, 0, 0, 0.7);
+  border: 2.5px solid rgba(0, 0, 0, 0.7);
   margin-bottom: 50px;
   width: 25%;
   font-size: 16px;
@@ -283,9 +283,6 @@ ol h1 {
   border: 3px solid #004c0c;
   cursor: pointer;
   color: white;
-  -webkit-transform: scale(1.2);
-  -ms-transform: scale(1.2);
-  transform: scale(1.2);
 }
 
 footer {
