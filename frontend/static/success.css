@@ -2,10 +2,22 @@ html {
   margin: 0;
   padding: 0;
 }
-
 body {
   margin: 0;
   padding: 0;
+  background-color: black;
+  -webkit-animation: fade-in 2s ease; 
+  animation: fade-in 2s ease;
+  font-family: 'Lato', sans-serif;
+}
+
+@-webkit-keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+} 
+@keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
 
 .body-page {
