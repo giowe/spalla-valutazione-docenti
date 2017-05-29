@@ -104,7 +104,23 @@ body {
   -ms-transform: scale(1.3);
   transform: scale(1.3);
 }
-
+.button-container a{
+ text-decoration: none;
+  color: white;
+}
+.button-container .bottone2{
+  border-radius: 5px;
+  border: 2px solid white;
+  margin: 0 30% 0 30%;
+}
+.button-container .bottone2 a:hover {
+  cursor: pointer;
+  color: rgba(255, 97, 0, 1);
+}
+.button-container .bottone2:hover {
+  cursor: pointer;
+  border-color: rgba(255, 97, 0, 1);
+}
 @media (max-width:613px) {
   .button-container .bottone p {
     font-size: 12px;
