@@ -7,11 +7,15 @@ block content
       div.navbar-text 
         li.navbar-container-link
           a.navbar-link.static-navbar-link(href="#home" onClick="return navbarScroll(this)" id = 'idNavhome') HOME
+        -var delayIndex = 2.0
         each docente in docenti
+          -var styleString = "-webkit-animation: fade-in "+delayIndex+"s ease; animation: fade-in "+delayIndex+"s ease;"
+          - delayIndex = delayIndex+0.3;
           li.navbar-container-link
-            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="return navbarScroll(this)" id = 'idNavidDoc'+docente.id) #{docente.nome} #{docente.cognome}
+            a.navbar-link.static-navbar-link(href='#idDoc'+docente.id onClick="return navbarScroll(this)" id = 'idNavidDoc'+docente.id style=styleString) #{docente.nome} #{docente.cognome}
         li.navbar-container-link
-          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="return navbarScroll(this)" id = 'idNavidDocnull') DOMANDE GENERALI
+          -var styleString = "-webkit-animation: fade-in "+delayIndex+"s ease; animation: fade-in "+delayIndex+"s ease;"
+          a.navbar-link.static-navbar-link(href="#idDocnull" onClick="return navbarScroll(this)" id = 'idNavidDocnull' style=styleString) DOMANDE GENERALI
   div.body-page
     div.navbarCollapsed
       ul 
