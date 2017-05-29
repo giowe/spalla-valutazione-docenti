@@ -13,7 +13,7 @@ function sendTest(elem, cb) {
       window.location.href = `/questionario?idClasse=${idClasse}`;
     };
     if (code === 600) {
-      window.location.pathname = '/votato';
+      window.location.pathname = '/success';
     };
     if (code === 601) {
       window.location.pathname = '/hack';

@@ -36,9 +36,11 @@ block content
       div.header-container#home
         div.header-container-text
           div.header-text
-            h1 IL TANTO ATTESO QUESTIONARIO
-            h3.noText #[strong Sito realizzato dalla classe 5F Scientifico come progetto di informatica anno scolastico 2016/17]
-            p.noText Questo sito permette di esprimere un giudizio anonimo verso i propri professori; inoltre stiamo risparmiando 10 fogli per ogni studente, un equivalente di circa 10000 fogli
+            h1 ISTRUZIONI:
+            h3 - avete a disposizione 15 minuti per rispondere a tutte le domande;
+            h3 - il questionario è in forma completamente anonima;
+            h3 - siete pregati di rispondere alle domande con il massimo della serietà e oggettività;
+            h3 - non chiudere la pagina una volta terminata la valutazione;
             div.header-bottone
               button(href='#idDoc'+docenti[0].id type="button" onClick="return navbarScroll(this)") #[h3 Clicca per iniziare]
       div.body-domande 
@@ -103,8 +105,7 @@ block content
             button(type="button"  onclick="sendTest()") #[h3 Invia il test]
     footer
       div.footerText
-        h2 Sito realizzato dai ragazzi della 5F Scientifico
-        h2 in collaborazione con Giovanni Bruno
+        h3 RICORDA: non chiudere la pagina una volta terminata la valutazione.
 block scripts 
   script.
       if (typeof (Storage) !== "undefined") {

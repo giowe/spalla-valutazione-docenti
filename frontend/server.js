@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
         });
       };
       if (statusCode == 600) {
-        res.redirect('/votato');
+        res.redirect('/success');
       }
     } catch (err) {
       return err;
@@ -79,7 +79,7 @@ app.get('/questionario', (req, res) => {
       err: err
     });
     if (statusCode == 600) {
-      res.redirect('/votato');
+      res.redirect('/success');
     } else if (statusCode == 202) {
       res.redirect('/');
     } else {
@@ -97,7 +97,8 @@ app.get('/questionario', (req, res) => {
 
 app.all('/success', (req, res) => {
   res.render('success', {
-    title: 'Test inviato con successo'
+    title: 'Test inviato con successo',
+    ServerIp: ipServer
   });
 });
 app.all('/votato', (req, res) => {
