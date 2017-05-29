@@ -6,8 +6,20 @@ html {
 body {
   margin: 0;
   padding: 0;
+  background-color: black;
+  -webkit-animation: fade-in 2s ease; 
+  animation: fade-in 2s ease;
+  font-family: 'Lato', sans-serif;
 }
 
+@-webkit-keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+} 
+@keyframes fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
 .navbarCollapsed ul {
   list-style-type: none;
   position: fixed;
@@ -59,15 +71,18 @@ body {
 .navbarCollapsed .dropdown:hover .dropdown-content {
   display: block;
 }
-.navbarCollapsed .dropdown-content .navbarC-container-link a{
+
+.navbarCollapsed .dropdown-content .navbarC-container-link a {
   -webkit-transition-duration: 0.5s;
   transition-duration: 0.5s;
 }
-.navbarCollapsed .dropdown-content .navbarC-container-link a:hover{
+
+.navbarCollapsed .dropdown-content .navbarC-container-link a:hover {
   color: rgba(255, 97, 0, 1);
   font-size: 18px;
   padding: 8px 4px;
 }
+
 .navbarCollapsed .dropdown-content .navbarC-container-link:hover {
   background-color: rgb(32, 35, 35);
 }
@@ -102,13 +117,16 @@ body {
   -webkit-transition-duration: 0.6s;
   transition-duration: 0.6s;
 }
+
 .navbar-container-link a.active {
-  background-color: rgb(230, 107, 19);;
-  color: black;
+  background-color: rgb(230, 107, 19);
+  /*color: black;*/
+  color: rgb(66, 66, 66);
   font-size: 18px;
   padding: 12px 8px;
   font-weight: 1400px;
 }
+
 .navbar-container-link a:hover:not(.active) {
   background-color: rgba(0, 0, 0, 0.8);
   color: rgba(255, 97, 0, 1);
@@ -158,19 +176,24 @@ body {
 }
 
 .header-container .header-bottone button {
-  border-radius: 15px;
-  border: 3px solid white;
+  border-radius: 12px;
+  border: 1.5px solid white;
   color: white;
   font-size: 14px;
+  padding: 3px 12px 3px 12px;
   background-color: rgba(255, 255, 255, 0);
   -webkit-transition-duration: 0.3s;
   transition-duration: 0.3s;
 }
 
 .header-container .header-bottone button:hover {
-  border-color: limegreen;
+  border: 2px solid limegreen;
+  border-radius: 3px;
   cursor: pointer;
   color: lime;
+  -webkit-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  transform: scale(1.2);
 }
 
 .body-domande {
@@ -188,11 +211,11 @@ body {
 
 .body-domande ul .docente {
   font-family: "Source Sans Pro", Arial, sans-serif;
-  border-radius: 25px;
+  border-radius: 15px;
   padding: 20px;
   margin-bottom: 20px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 1.5px solid rgba(155, 155, 155, 1);
+  border: 2px solid rgba(155, 155, 155, 1);
 }
 
 .docente .nome-docente {
@@ -232,12 +255,12 @@ body {
 
 .body-domande ol .domande-generali {
   font-family: "Source Sans Pro", Arial, sans-serif;
-  border-radius: 25px;
+  border-radius: 10px;
   padding: 20px;
   padding-right: 50px;
   padding-left: 50px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 0.25px solid #4a4b4c;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(155, 155, 155, 1);
 }
 
 ol h1 {
@@ -255,9 +278,9 @@ ol h1 {
 }
 
 .bottone-send button {
-  border-radius: 12px;
+  border-radius: 25px;
   background-color: rgba(255, 255, 255, 0.9);
-  border: 4px solid rgba(0, 0, 0, 0.7);
+  border: 2.5px solid rgba(0, 0, 0, 0.7);
   margin-bottom: 50px;
   width: 25%;
   font-size: 16px;
@@ -268,7 +291,8 @@ ol h1 {
 
 .bottone-send button:hover {
   background-color: rgba(11, 168, 30, 0.9);
-  border-color: #004c0c;
+  border-radius: 3px;
+  border: 3px solid #004c0c;
   cursor: pointer;
   color: white;
 }
@@ -380,6 +404,7 @@ footer .footerText {
 
 .tooltip {
   position: relative;
+  margin-right: 8px;
   display: inline-block;
 }
 
@@ -417,3 +442,4 @@ footer .footerText {
   visibility: visible;
   opacity: 1;
 }
+ 

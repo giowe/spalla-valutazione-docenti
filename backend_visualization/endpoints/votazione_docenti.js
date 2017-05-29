@@ -13,7 +13,7 @@ const pool = mysql.createPool({
   password: config.dbPassword
 });
 //GET DATI DOCENTI
-router.post('/votazioni/docenti', (req, res) => {
+router.get('/votazioni/docenti', (req, res) => {
   let idDocenteQS = req.query.idDocente;
   if ((typeof idDocenteQS) !== 'undefined') {
     if (idDocenteQS.includes(`'`) || idDocenteQS.includes(`"`)) {
