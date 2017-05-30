@@ -10,6 +10,12 @@ block content
            div.button-container
             button.bottone(href='#'+classe.id type="button" onClick="sendTest(this)") 
               p #{classe.label}
+          form.religione-section
+              h2 Fai religione?
+              input(type="radio" name="religione" value=0 checked="checked") 
+              span Si
+              input(type="radio" name="religione" value=1) 
+              span No
 block scripts 
     script.
       if (typeof (Storage) !== "undefined") {

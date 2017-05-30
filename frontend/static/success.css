@@ -19,7 +19,14 @@ body {
     from {opacity: 0;}
     to {opacity: 1;}
 }
-
+.religione-section{
+  color: white;
+  margin-top: 3vh;
+}
+.religione-section span{
+  margin-left: 3px;
+  margin-right: 10px;
+}
 .body-page {
   background-position: center;
   background-attachment: fixed;

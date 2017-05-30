@@ -34,6 +34,8 @@ app.get('/', (req, res) => {
 app.get('/questionario', (req, res) => {
   const ipPc = req.ip;
   const idClasse = req.query.idClasse;
+  const TFreligione =  req.query.TFreligione;
+  console.log(TFreligione);
   let statusCode;
   const asyncFunctions = [
     //domande generali
@@ -83,6 +85,24 @@ app.get('/questionario', (req, res) => {
     } else if (statusCode == 202) {
       res.redirect('/');
     } else {
+      const docentiArray=[];
+      if(TFreligione == 'false'){
+        const docentiArray=[];
+        results[2].forEach(docente=>{
+          if(docente.materia !== "Religione"){
+            docentiArray.push({
+              id:docente.id,
+              nome:docente.nome,
+              cognome:docente.cognome,
+              materia:docente.materia
+            })
+          }
+        })
+        results[2]=docentiArray;
+        console.log('no religion')
+      }
+      console.log(TFreligione);
+      //console.log(results[2]);
       res.render('index', {
         title: 'Questionario',
         domandeGenerali: results[0],
