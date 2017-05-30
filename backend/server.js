@@ -148,7 +148,7 @@ app.use('/votazioni', (req, res, next) => {
   if (ipUsati.includes(ipStudente)) {
     res.status(600).json("{}");
     return;
-  } else {
+  } else {/*
     const body = req.body;
     const Compatibilita = checkData(body, idClasse);//check
     if (Compatibilita) {
@@ -156,7 +156,8 @@ app.use('/votazioni', (req, res, next) => {
     } else {
       res.status(601).json("{}");
       return;
-    };
+    };*/
+    next();
   };
 });
 //API PER INSERIRE LE VOTAZIONI
