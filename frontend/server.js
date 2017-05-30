@@ -35,7 +35,6 @@ app.get('/questionario', (req, res) => {
   const ipPc = req.ip;
   const idClasse = req.query.idClasse;
   const TFreligione =  req.query.TFreligione;
-  console.log(TFreligione);
   let statusCode;
   const asyncFunctions = [
     //domande generali
@@ -99,9 +98,7 @@ app.get('/questionario', (req, res) => {
           }
         })
         results[2]=docentiArray;
-        console.log('no religion')
       }
-      console.log(TFreligione);
       //console.log(results[2]);
       res.render('index', {
         title: 'Questionario',
