@@ -13,7 +13,20 @@ const pool = mysql.createPool({
   password: config.dbPassword
 });
 //GET DATI DOCENTI
-router.get('/votazioni/docenti/spallanzani', (req, res) => {
+router.get('/votazioni/docenti/:sede', (req, res) => {
+  let AriostoSpalla = '';
+  const sede = req.params.sede;
+  if (sede == 'ariosto') AriostoSpalla = 'C'
+  else if (sede == 'spalla') AriostoSpalla = 'S'
+  else {
+    return res.status(404).json({
+      error: {
+        status: 404,
+        statusCode: 404,
+        message: 'non esistono docenti per la sede cercata'
+      }
+    })
+  }
   let idDocenteQS = req.query.idDocente;
   if ((typeof idDocenteQS) !== 'undefined') {
     if (idDocenteQS.includes(`'`) || idDocenteQS.includes(`"`)) {
@@ -29,7 +42,7 @@ router.get('/votazioni/docenti/spallanzani', (req, res) => {
       if (idDocenteQS === 'null') {
         whereString = `AND idDocente IS NULL`;
       }
-      pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni INNER JOIN studenti ON votazioni.idStudente = studenti.id WHERE studenti.idClasse LIKE '__S%' ${whereString} GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
+      pool.query(`SELECT idDocente , voto , idDomanda ,COUNT(*) as countValue FROM votazioni INNER JOIN studenti ON votazioni.idStudente = studenti.id WHERE studenti.idClasse LIKE '__${AriostoSpalla}%' ${whereString} GROUP BY voto , idDomanda , idDocente ORDER BY idDocente , idDomanda , voto ASC`, (err, rows, fields) => {
         if (err) return cb(err);
         let statisticheDocenti = [];
         let indexDomanda, indexDocente, sommaAvgTot, countAvgTot, sommaAvgDomanda, countAvgDomanda, countTotDomanda = 0;
