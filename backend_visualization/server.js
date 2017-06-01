@@ -6,6 +6,8 @@ const config = require('./config.json');
 const parallel = require('async').parallel;
 const votazione_generale = require('./endpoints/votazione_generale.js');
 const votazione_generale_Xsede = require('./endpoints/votazione_generale_Xsede.js');
+const votazione_generale_Xmateria = require('./endpoints/votazione_generale_Xmateria.js');
+const votazione_generale_XtipologiaMateria = require('./endpoints/votazione_generale_XtipologiaMateria.js');
 const votazioni_docenti = require('./endpoints/votazione_docenti.js');
 const votazioni_docenti_Xsede = require('./endpoints/votazione_docenti_Xsede.js');
 const docentiXclasse = require('./endpoints/docentiXclasse.js');
@@ -72,6 +74,8 @@ exposeList('docenti', 'cognome');
 
 app.get('/votazioni/scuola', votazione_generale); //GET VOTAZIONE GENERALE SCUOLA
 app.get('/votazioni/scuola/:sede', votazione_generale_Xsede); //GET VOTAZIONE GENERALE PER SEDE
+app.get('/votazioni/scuola/materia/:materia', votazione_generale_Xmateria); //GET VOTAZIONE GENERALE PER MATERIA
+app.get('/votazioni/scuola/tipologiaMateria/:tipoMateria', votazione_generale_XtipologiaMateria); //GET VOTAZIONE GENERALE PER TIPOLOGIA MATERIA
 
 app.get('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
 app.get('/votazioni/docenti/:sede', votazioni_docenti_Xsede); //GET VOTAZIONE DOCENTI PER SEDE
