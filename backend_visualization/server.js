@@ -5,9 +5,9 @@ const bodyParser = require('body-parser');
 const config = require('./config.json');
 const parallel = require('async').parallel;
 const votazione_generale = require('./endpoints/votazione_generale.js');
+const votazione_generale_Xsede = require('./endpoints/votazione_generale_Xsede.js');
 const votazioni_docenti = require('./endpoints/votazione_docenti.js');
-const votazioni_docenti_spalla = require('./endpoints/votazione_docenti_spalla.js');
-const votazioni_docenti_classico = require('./endpoints/votazione_docenti_classico.js');
+const votazioni_docenti_Xsede = require('./endpoints/votazione_docenti_Xsede.js');
 const docentiXclasse = require('./endpoints/docentiXclasse.js');
 const domandeEndpoint = require('./endpoints/domande.js');
 const login = require('./endpoints/login.js')
@@ -71,10 +71,10 @@ exposeList('domande', 'ordine');
 exposeList('docenti', 'cognome');
 
 app.get('/votazioni/scuola', votazione_generale); //GET VOTAZIONE GENERALE SCUOLA
-app.get('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
+app.get('/votazioni/scuola/:sede', votazione_generale_Xsede); //GET VOTAZIONE GENERALE PER SEDE
 
-app.get('/votazioni/docenti/spallanzani', votazioni_docenti_spalla); //GET VOTAZIONE DOCENTI SPALLANZANI
-app.get('/votazioni/docenti/classico', votazioni_docenti_classico) //GET VOTAZIONI DOCENTI CLASSICO
+app.get('/votazioni/docenti', votazioni_docenti); //GET VOTAZIONE GENERALE PER I DOCENTI
+app.get('/votazioni/docenti/:sede', votazioni_docenti_Xsede); //GET VOTAZIONE DOCENTI PER SEDE
 
 app.get('/docenti/:idClasse', docentiXclasse); //GET DOCENTI PER idClasse
 app.get(`/domande/:type`, domandeEndpoint); // GET DOMANDE IN BASE AL TIPO
