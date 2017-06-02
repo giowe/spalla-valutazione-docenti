@@ -12,9 +12,9 @@ const pool = mysql.createPool({
   password: config.dbPassword
 });
 router.get('/votazioni/scuola/materia/:materia', (req, res) => {
-  const materia = req.params.materia;
+  let materia = req.params.materia;
   if ((typeof materia) !== 'undefined') {
-    if (materia.includes(`'`) || materia.includes(`"`) || (!materie.T_Scientifico.includes(materia) && !materie.T_Altro.includes(materia) && !materie.T_Lingue.includes(materia) && !materie.T_Letteratura.includes(materia))) {
+    if ((materia.includes(`'`) && materia !== "Storia dell'Arte") || materia.includes(`"`) || (!materie.T_Scientifico.includes(materia) && !materie.T_Altro.includes(materia) && !materie.T_Lingue.includes(materia) && !materie.T_Letteratura.includes(materia))) {
       return res.status(404).json({
         error: {
           status: 404,
@@ -24,6 +24,7 @@ router.get('/votazioni/scuola/materia/:materia', (req, res) => {
       })
     }
   }
+  if(materia == "Storia dell'Arte") materia = "Storia dell''Arte"
   pool.query(`SELECT idDomanda , voto ,COUNT(*) as countValue FROM votazioni INNER JOIN docenti ON votazioni.idDocente = docenti.id WHERE docenti.materia = '${materia}' GROUP BY idDomanda , voto ORDER BY idDomanda , voto ASC`, (err, rows, fields) => {
     if (err) return res.status(705).json(err);
     let countVal = [];
