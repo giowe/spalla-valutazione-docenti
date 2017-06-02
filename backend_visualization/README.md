@@ -4,7 +4,9 @@
     - "/votazioni/scuola/:sede" => per avere le votazioni generali della scuola filtrata
     per sede "ariosto" e "spalla";
     - "/votazioni/scuola/materia/:materia" => per avere le votazioni generali della scuola 
-    filtrata per materia;
+    filtrata per materia: "Matematica e Fisica", "Scienze", "Matematica", "Informatica", 
+    "Matematica e Informatica","Lettere", "Storia Filosofia", "Greco", "Storia dell'Arte", 
+    "Francese", "Inglese", "Tedesco", "Religione", "Educazione Fisica";
     - "/votazioni/scuola/tipologiaMateria/:tipoMateria" => per avere le votazioni generali 
     della scuola filtrata per tipologia materia: "letteratura", "scientifico", "lingue", "altro";
     - "/votazioni/docenti" => per  avere le votazioni di tutti i docenti;
