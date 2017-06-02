@@ -12,7 +12,6 @@ const pool = mysql.createPool({
   database: "spalla_vdocenti",
   password: config.dbPassword
 });
-//GET DATI DOCENTI
 router.get('/votazioni/docenti', (req, res) => {
   let idDocenteQS = req.query.idDocente;
   if ((typeof idDocenteQS) !== 'undefined') {
@@ -39,7 +38,6 @@ router.get('/votazioni/docenti', (req, res) => {
           const voto = data.voto;
           const countDomanda = data.countValue;
           if (indexDocente === idDocenteData && indexDomanda === idDomandaData) {
-            //stesso docente e domanda
             if (voto !== -1) {
               countAvgTot += countDomanda;
               sommaAvgTot += countDomanda * voto;
@@ -58,7 +56,6 @@ router.get('/votazioni/docenti', (req, res) => {
             statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].countTot = countTotDomanda;
             statisticheDocenti[n_statisticheDocenti].valutazione[n_valutazione].avg = sommaAvgDomanda / countAvgDomanda;
           } else if (indexDocente === idDocenteData && indexDomanda !== idDomandaData) {
-            //stesso docente ma domanda cambiata
             indexDomanda = idDomandaData;
             countAvgDomanda = sommaAvgDomanda = 0;
             if (voto !== -1) {
@@ -82,7 +79,6 @@ router.get('/votazioni/docenti', (req, res) => {
             statisticheDocenti[n_statisticheDocenti].avgTot = sommaAvgTot / countAvgTot;
             statisticheDocenti[n_statisticheDocenti].valutazione.push(valutazioneInProgress);
           } else {
-            //cambio docente 
             indexDocente = idDocenteData;
             indexDomanda = idDomandaData;
             countAvgTot = sommaAvgTot = countAvgDomanda = sommaAvgDomanda = 0;
@@ -129,13 +125,13 @@ router.get('/votazioni/docenti', (req, res) => {
         valutazione: []
       };
       const arrayDocenti = [];
-      if (idDocenteQS === 'null') { //AGGIUNTA DOCENTE GENERALE
+      if (idDocenteQS === 'null') {
         arrayDocenti.push(generale);
         cb(null, arrayDocenti);
       } else {
         pool.query(`SELECT * FROM docenti ${whereString} ORDER BY id ASC`, (err, rows, fields) => {
-          if (err) return cb(err); //  ERRORE GET DATI DEI DOCENTI
-          if (idDocenteQS === undefined || idDocenteQS === '') { //AGGIUNTA DOCENTE GENERALE
+          if (err) return cb(err);
+          if (idDocenteQS === undefined || idDocenteQS === '') {
             arrayDocenti.push(generale);
           }
           rows.forEach(docente => {

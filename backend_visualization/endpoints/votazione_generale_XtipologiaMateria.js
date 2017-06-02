@@ -12,7 +12,6 @@ const pool = mysql.createPool({
   password: config.dbPassword
 });
 router.get('/votazioni/scuola/tipologiaMateria/:tipoMateria', (req, res) => {
-  //GET STATISTICHE GENERALI DELLA SCUOLA
   const tipologiaMateria = req.params.tipoMateria;
   if (tipologiaMateria !== 'letteratura' && tipologiaMateria !== 'scientifico' && tipologiaMateria !== 'lingue' && tipologiaMateria !== 'altro') {
     return res.status(404).json({
@@ -43,15 +42,12 @@ router.get('/votazioni/scuola/tipologiaMateria/:tipoMateria', (req, res) => {
     let countVal = [];
     let index, countTotRows, sommaAvgRows, countAvgRows = 0;
     rows.forEach(countRows => {
-      //MI SALVO I DATI DELL'OGGETTO PRESO IN ESAME
       const idDomandaRows = countRows.idDomanda;
       const votoRows = countRows.voto;
       const countValueRows = countRows.countValue;
-      //CONTROLLO IF...
-      if (index === idDomandaRows) { //VUOL DIRE CHE SIAMO ANCORA NELLA STESSA DOMANDA
-        //AGGIORNAMENTO VALORI COME CONTEGGIO E SOMMA
+      if (index === idDomandaRows) {
         const n_countVal = countVal.length - 1;
-        if (votoRows !== -1) { //SE IL VOTO NON E' NULLO
+        if (votoRows !== -1) {
           countAvgRows += countValueRows;
           sommaAvgRows += countValueRows * votoRows;
         }
@@ -63,26 +59,25 @@ router.get('/votazioni/scuola/tipologiaMateria/:tipoMateria', (req, res) => {
         countVal[n_countVal].countVal.push(votazioneRows);
         countVal[n_countVal].countTot = countTotRows;
         countVal[n_countVal].avg = sommaAvgRows / countAvgRows;
-      } else { //SE L'ID DELLA DOMANDA NON COINCIDE CON L'ID DOMANDA DI PRIMA ...
-        //RESET VALORI PERCHE' ABBIAMO CAMBIATO DOMANDA
+      } else {
         countTotRows = countValueRows;
         countAvgRows = sommaAvgRows = 0;
-        if (votoRows !== -1) { //SE IL VOTO NON E' NULLO
+        if (votoRows !== -1) {
           countAvgRows = countTotRows;
           sommaAvgRows = countAvgRows * votoRows;
         }
-        const votazioneRows = { //STRUTTURA VOTAZIONE DOMANDA
+        const votazioneRows = { 
           value: votoRows,
           count: countTotRows
         };
-        let domanda = { // STRUTTURA DOMANDA
+        let domanda = { 
           idDomanda: idDomandaRows,
           countTot: countTotRows,
           avg: sommaAvgRows / countAvgRows,
           countVal: [votazioneRows]
         };
-        index = idDomandaRows; //SET DEL NUOVO ID DOMANDA
-        countVal.push(domanda); //PUSH NUOVA DOMANDA NELL'ARRAY DOMANDE
+        index = idDomandaRows; 
+        countVal.push(domanda); 
       }
     });
     res.json(countVal);
