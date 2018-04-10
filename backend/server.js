@@ -1,24 +1,24 @@
-'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const config = require('./config.json');
 const uuid = require('uuid/v4');
-const parallel = require('async').parallel;
 const sezioneCorrente = process.argv[2];
-let idVotati = [];
-let passString = "";
-if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
-//console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
+
+let ipStudenti = [];
+
+if (!sezioneCorrente) throw new Error('Devi specificare la sezione alla quale stai somministrando il test');
+console.log(`STAI SOMMINISTRANDO IL TEST ALLA SEZIONE ${sezioneCorrente}`);
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "rds.soluzionifutura.it",
-  user: "spalla_vdocenti",
-  database: "spalla_vdocenti",
+  host: 'rds.soluzionifutura.it',
+  user: 'spalla_vdocenti',
+  database: 'spalla_vdocenti',
   password: config.dbPassword
 });
 const app = new express();
 const port = 4000;
+
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
@@ -34,10 +34,9 @@ app.options('*', (req, res) => {
 
 const exposeList = (tableName, sorter) => {
   app.get(`/${tableName}`, (req, res) => {
-    const limit = req.query.limit;
-    const offset = req.query.offset;
+    const { limit, offset } = req.query;
     
-    pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows, fields) => {
+    pool.query(`SELECT * FROM ${tableName} ORDER BY ${sorter} ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, (err, rows) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
     })
@@ -51,23 +50,20 @@ exposeList('docenti', 'cognome');
 exposeList('studenti', 'idClasse');
 
 app.get(`/votazioni`, (req, res) => {
-  const limit = req.query.limit;
-  const offset = req.query.offset;
-  let where = req.query.where;
-  let whereString = '';
+  const { limit, offset } = req.query;
+  let { where } = req.query;
+  
+  let whereString;
   if (where){
     try {
       where = JSON.parse(where);
-
       whereString = [];
-      Object.keys(where).forEach(key => {
-        const value = where[key];
+      Object.entries(where).forEach(([key, value]) => {
         const type = typeof value;
         if (type === 'object') {
-
+          //todo per un where piu' peso. non succedera' mai.
         } else {
-          const wrapperChar =type === 'string' ? '"' : '';
-          whereString.push(`\`${key}\` = ${wrapperChar+value+wrapperChar}`);
+          whereString.push(`${mysql.escapeId(key)} = ${mysql.escape(value)}`);
         }
       });
       if (whereString.length) {
@@ -81,19 +77,15 @@ app.get(`/votazioni`, (req, res) => {
       where = null;
     }
   }
-    
-  //console.log(whereString);
-  
-  pool.query(
-   `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
+
+  const query = `SELECT votazioni.*, studenti.idClasse, docenti.cognome AS cognomeDocente, docenti.nome AS nomeDocente, docenti.materia AS materiaDocente FROM votazioni
    INNER JOIN studenti ON votazioni.idStudente = studenti.id
    INNER JOIN docenti ON votazioni.idDocente = docenti.id 
-   ${whereString}
-   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`, 
-    
-    (err, rows, fields) => {
+   ${whereString || ''}
+   ORDER BY idDocente ASC ${limit? 'LIMIT ' + limit : ''} ${offset? 'OFFSET ' + offset : ''}`;
+  console.log(query);
+  pool.query(query, (err, rows) => {
     if (err) return res.status(500).json(err);
-    
     res.json({
       count: rows.length,
       data: rows
@@ -112,6 +104,7 @@ app.get(`/domande/:type`, (req, res) => {
     res.json(rows);
   })
 });
+
 app.get('/docenti/:classe', (req, res) => {
   let classe = req.params.classe;
   if (classe === 'current') classe = sezioneCorrente;
@@ -129,39 +122,16 @@ app.get('/docenti/:classe', (req, res) => {
   })
 });
 
-function isInArray(value, array) {
-  return array.indexOf(value) > -1;
-}
-//middleWare contro hacking e doppia votazione 
-app.use('/votazioni', (req, res, next) => {
-  return next();
-  
-  const ipStudente = req.ip;
-  if (isInArray(ipStudente, idVotati)) {
-    res.status(600).json("{}");
-    console.log(ipStudente, `ha tentato di rivotare`);
-    return;
-  };
-  const body = req.body;
+const checkDuplicated = (req, res, next) => {
+  next();
+};
 
-  let Compatibilita = controlData(body);
-
-  if (Compatibilita) {
-    next();
-  } else {
-    res.status(601).json("{}");
-    console.log(ipStudente, `ha tentato di cambiare L'HTML`);
-    return;
-  };
-
-});
-app.post('/votazioni', (req, res) => {
-  const body = req.body; /*require('./fake-data.json');*/
+app.post('/votazioni', checkDuplicated, (req, res) => {
+  const { body } = req.body; /*require('./fake-data.json');*/
   const studente = {
     id: uuid(),
     idClasse: req.query.classe || sezioneCorrente
   };
-  const ipStudente = req.ip;
   const votazioni = [];
   body.docenti.forEach(docente => {
     docente.domande.forEach(domanda => {
@@ -175,11 +145,12 @@ app.post('/votazioni', (req, res) => {
     pool.query('INSERT INTO votazioni (idStudente, idDocente, idDomanda, voto) VALUES ?', [votazioni], (err, rows, fields) => {
       if (err) return res.status(500).json(err);
       res.json(rows);
-      idVotati.push(ipStudente);
-      console.log(idVotati.length, 'hanno finito di votare');
+      ipStudenti.push(req.ip);
+      console.log(ipStudenti.length, 'hanno finito di votare');
     });
   });
 });
+
 app.all('*', (req, res) => {
   res.status(404).json({
     error: {
@@ -190,84 +161,4 @@ app.all('*', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  //console.log(`backend listening on port ${port}`);
-  console.log('ATTENDERE BACKEND "backend pronto"');
-});
-
-generatePassString();
-// funzione che ti genere una stringa composta da id(docente o generali) + i relativi id domande 
-function generatePassString() {
-  let idDocentiCurrent = [];
-  let idDomandeDocCurrent = [];
-  let idDomandeGenCurrent = [];
-  const query = [
-    'SELECT d.id FROM docenti d',
-    'INNER JOIN classi_docenti cd ON d.id = cd.idDocente',
-    'INNER JOIN classi c ON cd.idClasse = c.id',
-    'WHERE c.id = ?'
-  ].join(' ');
-
-  pool.query(query, [sezioneCorrente], (err, rows, fields) => {
-    if (err) return console.log('Errore creazione passString fase GetidDocenti');
-    rows.forEach(docente => {
-      idDocentiCurrent.push(docente.id);
-    });
-    let params = {
-      type: '0'
-    };
-    pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-      if (err) return console.log('Errore creazione passString fase GetDomandeDocenti');
-      rows.forEach(domanda => {
-        idDomandeDocCurrent.push(domanda.id);
-      });
-      params = {
-        type: '1'
-      };
-      pool.query(`SELECT id FROM domande WHERE ? ORDER BY ordine ASC`, params, (err, rows, fields) => {
-        if (err) return console.log('Errore creazione passString fase GetDomandeGenerali');
-        rows.forEach(domanda => {
-          idDomandeGenCurrent.push(domanda.id);
-        });
-        idDocentiCurrent.forEach(docente => {
-          passString = passString + docente;
-          idDomandeDocCurrent.forEach(domanda => {
-            passString = passString + domanda;
-          });
-        });
-        passString = passString + null;
-        idDomandeGenCurrent.forEach(domanda => {
-          passString = passString + domanda;
-        });
-        console.log('backend pronto');
-      });
-    });
-  });
-};
-// funzione per il controllo tra passString e la stringa generata partendo dai dati del body 
-// da come risposta true in caso positivo e false in caso negativo 
-function controlData(body) {
-  let InDomGenId = [];
-  let protoRNA = "";
-  body.docenti.forEach(docente => {
-    if (docente.id !== null) {
-      protoRNA = protoRNA + docente.id;
-      docente.domande.forEach(domanda => {
-        protoRNA = protoRNA + domanda.id;
-      });
-    } else {
-      docente.domande.forEach(domanda => {
-        InDomGenId.push(domanda.id);
-      });
-    };
-  });
-  protoRNA = protoRNA + null;
-  InDomGenId.forEach(domanda => {
-    protoRNA = protoRNA + domanda;
-  });
-  if (passString === protoRNA) {
-    return true;
-  } else {
-    return false;
-  }
-};
+app.listen(port, () => console.log(`backend listening on port ${port}`));
