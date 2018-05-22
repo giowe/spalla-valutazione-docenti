@@ -1,4 +1,3 @@
-'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
@@ -14,13 +13,7 @@ const ipUsati = [];
 const classiCreate = [];
 let classiInfo = []; // array che contiene le varie stringhe di controllo
 if (!sezioneCorrente) throw new Error("Devi specificare la sezione alla quale stai somministrando il test");
-const pool = mysql.createPool({
-  connectionLimit: 10,
-  host: "rds.soluzionifutura.it",
-  user: "spalla_vdocenti",
-  database: "spalla_vdocenti",
-  password: config.dbPassword
-});
+const pool = mysql.createPool(config);
 
 const app = new express();
 const port = 4000;

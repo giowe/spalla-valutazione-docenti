@@ -88,7 +88,7 @@ app.get('/questionario', (req, res) => {
       if(TFreligione == 'false'){
         const docentiArray=[];
         results[2].forEach(docente=>{
-          if(docente.materia !== "Religione"){
+          if(docente.materia !== "RELIGIONE"){
             docentiArray.push({
               id:docente.id,
               nome:docente.nome,
